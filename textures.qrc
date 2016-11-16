@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/pool">
+        <file>pool.bmp</file>
+    </qresource>
+	<qresource prefix="/sky">
+        <file>skybox.bmp</file>
+    </qresource>
+</RCC>
