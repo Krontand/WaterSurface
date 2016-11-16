@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <iterator>
 #include <iomanip>
-#include "geometry.h"
+#include "geometry/geometry.h"
 
 
 #define RCOLOR 0

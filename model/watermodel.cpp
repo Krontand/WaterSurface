@@ -1,5 +1,5 @@
 #include "watermodel.h"
-#include "geometry.h"
+#include "geometry/geometry.h"
 
 WaterModel::~WaterModel()
 {

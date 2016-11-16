@@ -20,28 +20,33 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     imageitem.cpp \
     painter.cpp \
-    geometry.cpp \
     camera.cpp \
     cammod.cpp \
     mgraphicsview.cpp \
-    poolmodel.cpp \
     texture.cpp \
-    skybox.cpp \
-    model.cpp \
-    watermodel.cpp
+    geometry/geometry.cpp \
+    geometry/matrix.cc \
+    model/poolmodel.cpp \
+    model/skybox.cpp \
+    model/watermodel.cpp \
+    vertex.cpp \
+    model/model.cpp
 
 HEADERS  += mainwindow.h \
     imageitem.h \
     painter.h \
-    geometry.h \
     camera.h \
     cammod.h \
     mgraphicsview.h \
-    poolmodel.h \
     texture.h \
-    skybox.h \
-    model.h \
-    watermodel.h
+    geometry/geometry.h \
+    geometry/matrix2.hxx \
+    model/poolmodel.h \
+    model/skybox.h \
+    model/watermodel.h \
+    vertex.h \
+    model/model.h \
+    geometry/cmatrix
 
 FORMS    += mainwindow.ui
 

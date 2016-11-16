@@ -2,13 +2,13 @@
 #define Scene_H
 
 #include "imageitem.h"
-#include "watermodel.h"
+#include "model/watermodel.h"
 #include "camera.h"
-#include "geometry.h"
+#include "geometry/geometry.h"
 #include "math.h"
-#include "poolmodel.h"
+#include "model/poolmodel.h"
 #include "texture.h"
-#include "skybox.h"
+#include "model/skybox.h"
 #include <QRgb>
 #include <QGraphicsScene>
 

@@ -1,7 +1,7 @@
 #ifndef GEOMETRY
 #define GEOMETRY
 
-#include <cmatrix>
+#include <geometry/cmatrix>
 #include "math.h"
 #include "omp.h"
 

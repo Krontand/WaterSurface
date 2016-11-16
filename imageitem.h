@@ -3,7 +3,7 @@
 
 #include <QGraphicsPixmapItem>
 #include <QImage>
-#include "geometry.h"
+#include "geometry/geometry.h"
 
 class ImageItem : public QGraphicsPixmapItem
 {
