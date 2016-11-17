@@ -27,6 +27,23 @@ void Model::setscreensurf(const Matrix &m)
     }
 }
 
+void Model::apply_matrix(const Matrix &m)
+{
+    #pragma omp parallel for
+    for (int i = 0; i < surf.size()/4; ++i)
+    {
+        surf[i] = m * V(surf[i]);
+    }
+    for (int i = 0; i < surf.size()/4; ++i)
+    {
+        for (int j = 0; j < 3; ++j)
+        {
+
+            surf[i][j] /= surf[i][3];
+        }
+    }
+}
+
 struct PolyVecs Model::vert(int num)
 {
     struct PolyVecs p;

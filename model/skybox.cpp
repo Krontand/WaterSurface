@@ -8,19 +8,21 @@ Skybox::Skybox()
     surf = Matrix(xv*zv, 4);
     surf_screen = Matrix(xv*zv, 4);
 
+    halfsize = 0.05;
+
     tex = new Texture(":/sky/skybox.bmp");
     for(int j = 0; j < xv; ++j)
     {
-        surf[j][1] = .5;
+        surf[j][1] = halfsize;
         surf[j][3] = 1;
-        surf[j+xv][1] = -.5;
+        surf[j+xv][1] = -halfsize;
         surf[j+xv][3] = 1;
     }
 
-    float x1 = -.5;
-    float x2 = .5;
-    float z1 = -.5;
-    float z2 = .5;
+    float x1 = -halfsize;
+    float x2 = halfsize;
+    float z1 = -halfsize;
+    float z2 = halfsize;
 
     surf[0][0] = x1;
     surf[0][2] = z2;
@@ -108,34 +110,38 @@ void Skybox::moveto(Vector c)
     center[0] = c[0]; center[1] = c[1]; center[2] = c[2];
 }
 
-void Skybox::clip(Camera cam)
+void Skybox::clip(Camera *cam)
 {
-    float zcp = sqrt(dot(cam.eye_s, cam.eye_s));
-    float yd = 1;
-    float yu = 1;
-    float xl = 1;
-    float xr = 1;
-/*
+    float zcp = sqrt(dot(this->center, this->center));
+    float yd = 10;
+    float yu = 10;
+    float xl = 10;
+    float xr = 10;
+
      this->n[0][0] = 0;    this->n[0][1] = 0;       this->n[0][2] = -1;
      this->n[1][0] = 0;    this->n[1][1] = -zcp-1;  this->n[1][2] = -yd;
      this->n[2][0] = 0;    this->n[2][1] = zcp+1;  this->n[2][2] = -yu;
      this->n[3][0] = -zcp-1; this->n[3][1] = 0;    this->n[3][2] = -xl;
      this->n[4][0] = zcp+1;  this->n[4][1] = 0;    this->n[4][2] = -xr;
+
+    o[0][0] = 0;    o[0][1] = 0;    o[0][2] = zcp-.01;
+    o[1][0] = 0;    o[1][1] = 0;    o[1][2] = zcp;
+    o[2][0] = 0;    o[2][1] = 0;    o[2][2] = zcp;
+    o[3][0] = 0;    o[3][1] = 0;    o[3][2] = zcp;
+    o[4][0] = 0;    o[4][1] = 0;    o[4][2] = zcp;
+/*
+    this->n[0][0] = 0;    this->n[1][0] = 0;       this->n[2][0] = -1;
+    this->n[0][1] = 0;    this->n[1][1] = -zcp-1;  this->n[2][1] = -yd;
+    this->n[0][2] = 0;    this->n[1][2] = zcp+1;  this->n[2][2] = -yu;
+    this->n[0][3] = -zcp-1; this->n[1][3] = 0;    this->n[2][3] = -xl;
+    this->n[0][4] = zcp+1;  this->n[1][4] = 0;    this->n[2][4] = -xr;
+
+   o[0][0] = 0;    o[1][0] = 0;    o[2][0] = zcp-.01;
+   o[0][1] = 0;    o[1][1] = 0;    o[2][1] = zcp;
+   o[0][2] = 0;    o[1][2] = 0;    o[2][2] = zcp;
+   o[0][3] = 0;    o[1][3] = 0;    o[2][3] = zcp;
+   o[0][4] = 0;    o[1][4] = 0;    o[2][4] = zcp;
 */
-    this->n[0][0] = 0;    this->n[0][1] = 0;      this->n[0][2] = -1;
-    this->n[1][0] = 0;    this->n[1][1] = 1;      this->n[1][2] = 0;
-    this->n[2][0] = 0;    this->n[2][1] = -1;      this->n[2][2] = 0;
-    this->n[3][0] = 1;    this->n[3][1] = 0;    this->n[3][2] = 0;
-    this->n[4][0] = -1;   this->n[4][1] = 0;    this->n[4][2] = 0;
-    this->n[5][0] = 0;   this->n[5][1] = 0;    this->n[5][2] = 1;
-
-    o[0][0] = 0;    o[0][1] = 0;    o[0][2] = zcp-.1;
-    o[1][0] = 0;    o[1][1] = -1;    o[1][2] = 0;
-    o[2][0] = 0;    o[2][1] = 1;    o[2][2] = 0;
-    o[3][0] = -1;    o[3][1] = 0;    o[3][2] = 0;
-    o[4][0] = 1;    o[4][1] = 0;    o[4][2] = 0;
-    o[5][0] = 0;    o[5][1] = 0;    o[5][2] = -1;
-
     Matrix vert = Matrix(12, 5);
     int num = this->polygons.size();
     int n;
@@ -180,6 +186,15 @@ PolyVecs Skybox::vert(int num)
     return p;
 }
 
+PolyVecs Skybox::_vert(int num)
+{
+    struct PolyVecs p;
+    p.a = this->surf_screen[this->polygons[num].vert[0]];
+    p.b = this->surf_screen[this->polygons[num].vert[1]];
+    p.c = this->surf_screen[this->polygons[num].vert[2]];
+    return p;
+}
+
 void Skybox::setclipview(const Matrix &m)
 {
     #pragma omp parallel for
@@ -212,7 +227,7 @@ void Skybox::clip_poly(int n, int &num, Matrix &vert)
         t2[i][4] = this->polygons[n].v[i];
     }
 
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < 5; i++)
     {
         int k = clip_plane(t1, t2, num, this->n[i], this->o[i]);
         num = k;
@@ -234,6 +249,8 @@ int Skybox::clip_plane(Matrix &dst, const Matrix &src, int num, Vector n, Vector
     float t1, t2;
     float k;
 
+    normalize(n);
+
     r = 0;
     for (i = 0; i < num; i++)
     {
@@ -242,18 +259,27 @@ int Skybox::clip_plane(Matrix &dst, const Matrix &src, int num, Vector n, Vector
 
    //     std::cout << "\n" << p1[0] << " " << p1[1] << " " << p1[2];
 
+        tmp = p1-o;
+        normalize(tmp);
         t1 = dot(p1 - o, n);
+        tmp = p2-o;
+        normalize(tmp);
         t2 = dot(p2 - o, n);
 
         if (t1 >= 0)
         {   // если начало лежит в области
-            dst[r++] = p1; // добавляем начало
+            dst[r][0] = p1[0];
+            dst[r][1] = p1[1];
+            dst[r][2] = p1[2];
+            dst[r][3] = p1[3];
+            dst[r][4] = p1[4];
+            r++;
         }
         // если ребро пересекает границу
         // добавляем точку пересечения
         if (((t1 >  0) && (t2 < 0)) || ((t2 >= 0) && (t1 < 0)))
         {
-             k = 1 - dot(p1, n) / dot(p2, n);
+             k =  - dot(p1-o, n) / dot(p2-p1, n);
              dst[r][0] = p1[0] + k * (p2[0] - p1[0]);
              dst[r][1] = p1[1] + k * (p2[1] - p1[1]);
              dst[r][2] = p1[2] + k * (p2[2] - p1[2]);

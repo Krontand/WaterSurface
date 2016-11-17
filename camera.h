@@ -6,7 +6,7 @@
 class Camera
 {
 public:
-    Camera();
+    Camera(double x, double y, double z);
 
     Vector eye;
     Vector center;
@@ -15,6 +15,7 @@ public:
     Vector eye_s;
     double anglex;
     double angley;
+    double dist;
 };
 
 #endif // CAMERA_H

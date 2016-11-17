@@ -35,7 +35,7 @@ public:
     void set_changed();
 
     Vector light_dir;
-    Camera cam;
+    Camera *cam;
     QGraphicsScene *scene;
 
 private:    

@@ -51,6 +51,8 @@ public:
      */
     void setscreensurf(const Matrix &m);
 
+    void apply_matrix(const Matrix &m);
+
     /*
      * Расчет нормалей в вершинах
      */

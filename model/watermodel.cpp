@@ -76,8 +76,8 @@ WaterModel::WaterModel(double x)
     i_wall[2] = BCOLOR*.3;
 
 
-    H1 = Vector(YS, x*x);
-    H2 = Vector(YS, x*x);
+    H1 = Vector(YS/1.6, x*x);
+    H2 = Vector(YS/1.6, x*x);
 
     surf_norms = Matrix(2 * xvert * xvert, 3);
     vert_norms = Matrix(xvert * xvert, 3);

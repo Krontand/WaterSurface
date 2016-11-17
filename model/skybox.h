@@ -22,7 +22,7 @@ public:
     void calc_normals() {};
     void setnormals();
     void moveto(Vector c);
-    void clip(Camera cam);
+    void clip(Camera *cam);
     struct PolyVecs vert(int num);
     void setclipview(const Matrix &m);
 
@@ -32,6 +32,7 @@ public:
 
     Matrix vert_clip;
 
+    PolyVecs _vert(int num);
 private:
     void init_polygons();
     void clip_poly(int n, int &num, Matrix &vert);
@@ -41,6 +42,7 @@ private:
     Matrix n;
     Matrix o;
     int verts;
+    double halfsize;
 };
 
 #endif // SKYBOX_H

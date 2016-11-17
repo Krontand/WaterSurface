@@ -20,23 +20,21 @@ void CamMod::mouseEvent(QMouseEvent *pe)
         rotatex((ypos - pe->y())/50.0);
     xpos = pe->x();
     ypos = pe->y();
+
+    scene->cam->eye[2] = scene->cam->dist * sin(scene->cam->anglex) * cos(scene->cam->angley);
+    scene->cam->eye[0] = scene->cam->dist * sin(scene->cam->anglex) * sin(scene->cam->angley);
+    scene->cam->eye[1] = scene->cam->dist * cos(scene->cam->anglex);
 }
 
 void CamMod::rotatey(double angle)
 {
-    scene->cam.angley += angle;
-    angle = scene->cam.angley;
-    scene->cam.eye[0] = cos(angle)*scene->cam.eye_s[0] + sin(angle)*scene->cam.eye_s[2];
-    scene->cam.eye[2] = -sin(angle)*scene->cam.eye_s[0] + cos(angle)*scene->cam.eye_s[2];
+    scene->cam->angley += angle;
     scene->set_changed();
 }
 
 void CamMod::rotatex(double angle)
 {
-    scene->cam.anglex += angle;
-    angle = scene->cam.anglex;
-    scene->cam.eye[1] = cos(angle)*scene->cam.eye_s[1] - sin(angle)*scene->cam.eye_s[2];
-    scene->cam.eye[2] = sin(angle)*scene->cam.eye_s[1] + cos(angle)*scene->cam.eye_s[2];
+    scene->cam->anglex += angle;
     scene->set_changed();
 }
 

@@ -31,10 +31,7 @@ Scene::Scene(int x, int y, int w, int h)
             model.surf[1][2],
             model.surf[model.xvert-2][2]);
 
-    cam.eye[0] = -1.3;
-    cam.eye[1] = -1.3;
-    cam.eye[2] = 1.3;
-    cam.eye_s = cam.eye;
+    cam = new Camera(-.4, -.4, -.4);
 
     setviewmatr();
     setprojmatr();
@@ -49,6 +46,14 @@ Scene::Scene(int x, int y, int w, int h)
 
     light_color = Vector(3);
     light_color = 255;
+
+
+    Matrix scale = Matrix(4, 4);
+    identity4(scale);
+    scale = scale / 1.6;
+    scale[3][3] = 1;
+    model.apply_matrix(scale);
+    pool_model.apply_matrix(scale);
 
 }
 
@@ -76,20 +81,13 @@ void Scene::setViewPort(int x, int y, int w, int h)
 
 void Scene::setviewmatr()
 {
-    cam.center[0] = 0;
-    cam.center[1] = 0;
-    cam.center[2] = 0;
-    cam.up[0] = 0;
-    cam.up[1] = 1;
-    cam.up[2] = 0;
-
     Vector z(3);
     Vector x(3);
     Vector y(3);
 
-    z = cam.eye - cam.center;
+    z = cam->eye - cam->center;
     normalize(z);
-    x = cross(cam.up,z);
+    x = cross(cam->up,z);
     normalize(x);
     y = cross(z,x);
     normalize(y);
@@ -103,7 +101,7 @@ void Scene::setviewmatr()
         Minv[0][i] = x[i];
         Minv[1][i] = y[i];
         Minv[2][i] = z[i];
-        Tr[i][3] = -cam.center[i];
+        Tr[i][3] = -cam->center[i];
     }
     viewMatr = Minv * Tr;
 }
@@ -113,7 +111,7 @@ void Scene::setprojmatr()
     projMatr = Matrix(4, 4);
     identity4(projMatr);
     projMatr[3][2] = -1.0 /
-            sqrt((cam.eye[0]) * (cam.eye[0]) + (cam.eye[1]) * (cam.eye[1]) + (cam.eye[2]) * (cam.eye[2]));
+            sqrt((cam->eye[0]) * (cam->eye[0]) + (cam->eye[1]) * (cam->eye[1]) + (cam->eye[2]) * (cam->eye[2]));
 
 }
 
@@ -128,40 +126,43 @@ void Scene::drawimage()
 
     double t = model.transparent;
 
-        // Стенки бассейна - рисуются, если изменилось положение камеры
+        // Стенки бассейна и скайбокс - рисуются, если изменилось положение камеры
     if (changed)
     {
         changed = false;
         memset(zbuf, 0, sizeof(int) * w * h);
         memset(&ibuf[0][0], 0, 3 * w * h * sizeof(double));
 
-        skybox->moveto(cam.eye);
+        skybox->moveto(cam->eye);
 
-        Matrix m1 = viewMatr;
+        Matrix m1 =  viewMatr;
         skybox->setscreensurf(m1);
         skybox->clip(cam);
-
-        m1 = viewPort;
-        skybox->setclipview(m1);
-
-        int num = skybox->polygons.size();
-
-       /* std::cout << "clip_polys.size = " << num << std::endl;*/
- std::cout << "START";
-  //      #pragma omp parallel for
-        for (int i = 0; i < num; i++)
+/*
+        std::cout << "SKYBOX ORIGINAL VERTICES" << std::endl;
+        for (int i = 0; i < skybox->surf_screen.size()/4; i++)
         {
-                triangle(skybox->vert(i), V(pool_model.i[4]), skybox->polygons[i], skybox->tex, true);
-
-
-                std::cout << "i = " << i << std::endl;
-                PolyVecs b = skybox->vert(i);
-                std::cout << "A" << b.a[0] << " " << b.a[1] << " " << b.a[2] << std::endl;
-                std::cout << "B" << b.b[0] << " " << b.b[1] << " " << b.b[2] << std::endl;
-                std::cout << "C" << b.c[0] << " " << b.c[1] << " " << b.c[2] << std::endl;
-                std::cout << std::endl << std::endl;
+            std::cout << skybox->surf[i][0] << " " << skybox->surf_screen[i][1] << " " << skybox->surf_screen[i][2] << std::endl;
         }
 
+        std::cout << "CAMERA'S POSITION IS " << cam->eye[0] << " " << cam->eye[1] << " " << cam->eye[2] << std::endl;
+
+        std::cout << "SKYBOX VERTICES" << std::endl;
+        for (int i = 0; i < skybox->surf_screen.size()/4; i++)
+        {
+            std::cout << skybox->surf_screen[i][0] << " " << skybox->surf_screen[i][1] << " " << skybox->surf_screen[i][2] << std::endl;
+        }
+*/
+        m1 = viewPort * projMatr;
+        skybox->setclipview(m1);
+
+        int num = skybox->clip_polys.size();
+
+        #pragma omp parallel for
+        for (int i = 0; i < num; i++)
+        {
+                triangle(skybox->vert(i), V(pool_model.i[4]), skybox->clip_polys[i], skybox->tex, false);
+        }
         #pragma omp parallel for
         for (int i = 0; i < 4; i++)
         {
@@ -225,29 +226,28 @@ void Scene::rand_disturb()
     if ((k+1) % model.xvert == 0)
         k--;
 
-    model.H1[k] += .1;
-    model.H2[k] += .1;
+    model.H1[k] += .05;
+    model.H2[k] += .05;
 
-    model.H1[k + 1] += .1;
-    model.H2[k + 1] += .1;
+    model.H1[k + 1] += .05;
+    model.H2[k + 1] += .05;
 
-    model.H1[k + model.xvert] += .1;
-    model.H2[k + model.xvert] += .1;
+    model.H1[k + model.xvert] += .05;
+    model.H2[k + model.xvert] += .05;
 
-    model.H1[k + model.xvert + 1] += .1;
-    model.H2[k + model.xvert + 1] += .1;
+    model.H1[k + model.xvert + 1] += .05;
+    model.H2[k + model.xvert + 1] += .05;
 }
 
 void Scene::calc_normals()
 {
     model.calc_normals();
     pool_model.calc_normals();
-
 }
 
 void Scene::calc_intencities()
 {
-    Vector v = norm(cam.eye);
+    Vector v = norm(cam->eye);
     Vector h = norm(v + light_dir);
 
     int xvert = model.xvert;
