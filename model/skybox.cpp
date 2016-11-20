@@ -84,18 +84,6 @@ void Skybox::init_polygons()
 }
 
 
-void Skybox::setnormals()
-{
-    int num = this->polygons.size();
-    for (int i = 0; i < num; i++)
-    {
-         this->surf_deform_norms[i] = -V(get_normal(
-             V(surf_screen[polygons[i].vert[0]]),
-             V(surf_screen[polygons[i].vert[1]]),
-             V(surf_screen[polygons[i].vert[2]])));
-    }
-}
-
 void Skybox::moveto(Vector c)
 {
     double dx = c[0] - center[0];

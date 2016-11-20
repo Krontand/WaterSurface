@@ -52,17 +52,42 @@ public:
      */
     void setscreensurf(const Matrix &m);
 
+    /*
+     * Применить матрицу m к исходным координатам модели
+     */
     void apply_matrix(const Matrix &m);
+
+    /*
+     * Применить матрицу m к вершинам модели, отсеченной пирамидой видимости
+     */
+    void setclipview(const Matrix &m);
 
     /*
      * Расчет нормалей в вершинах
      */
     virtual void calc_normals() = 0;
 
-
+    /*
+     * Возвращает вершины полигона с заданным номером (экранные, неотсеченные)
+     */
     struct PolyVecs vert(int num);
-    struct PolyVecs _vert(int num);
+
+    /*
+     * Возвращает вершины полигона с заданным номером (экранные, отсеченные)
+     */
+    PolyVecs clipvert(int num);
+
+    /*
+     * Возвращает интенсивности вершин полигона с заданным номером
+     */
     struct PolyI intencity(int num);
+
+    /*
+     * Отсечение пирамидой видимости камеры cam
+     */
+    void clip(Camera *cam);
+
+
 
     double transparent;                   // Коэффициент прозрачности материала модели
     Matrix surf;                          // Матрица вершин
@@ -72,24 +97,37 @@ public:
     Vector color;                         // Цвет
     Matrix vert_norms;                    // Координаты нормалей к вершинам
     Matrix surf_norms;                    // Координаты нормалей к треугольникам
+    std::vector<TrPolygon> clip_polys;    // Полигоны модели после отсечения пирамидой видимости
+    Texture *tex;                         // Текстура модели
+    Matrix vert_clip;                     // Вершины модели после отсечения
 
     int xvert;
-
-    std::vector<TrPolygon> clip_polys;    // Полигоны модели
-    Texture *tex;
-
-    Matrix vert_clip;
-    void clip(Camera *cam);
-    void setclipview(const Matrix &m);
-    PolyVecs clipvert(int num);
 protected:
     /*
      * Расчет нормали к треугольнику abc
      */
     Vector get_normal(const Vector &a, const Vector &b, const Vector &c);
-    Matrix n;
-    Matrix o;
+
+
+    Matrix n;   // Нормали пирамиды видимости
+    Matrix o;   // Точки, принадлежащие сторонам пирамиды видимости
+
+    /*
+     * Отсечение треугольного полигона пирамидой видимости.
+     * n - номер полигона
+     * num - количество вершин в итоговом полигоне.
+     */
     void clip_poly(int n, int &num, Matrix &vert);
+
+    /*
+     * Отсечение полигона стороной пирамиды видимости
+     * Результат - количество вершин в итоговом полигоне
+     * dst - итоговые вершины
+     * src - исходные вершины
+     * num - количество вершин в исходном полигоне
+     * n - нормаль к плоскости отсечения (внутренняя для пирамиды видимости
+     * o - точка, принадлежащая плоскости отсечения
+     */
     int clip_plane(Matrix &dst, const Matrix &src, int num, Vector n, Vector o);
     int verts;
 

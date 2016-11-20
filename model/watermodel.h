@@ -9,6 +9,7 @@ public:
     WaterModel();
     WaterModel(double x);
     ~WaterModel();
+
     /*
      * Расчет высот в следующий момент времени
      */
@@ -18,20 +19,26 @@ public:
      * Расчет нормалей в вершинах
      */
     void calc_normals();
+
+    /*
+     * Получение вершин заданного полигона стенки воды
+     */
     struct PolyVecs wallvert(int num);
 
+    Vector i_wall;                        // Интенсивность света стенок воды
 
-    Vector i_wall;
+    int xvert;                            // Количество вершин в сетке по X (оно же по Z)
 
-    int xvert; // Количество вершин в сетке по X (оно же по Z)
-
-    std::vector<TrPolygon> wallpoly;      // Полигоны модели
+    std::vector<TrPolygon> wallpoly;      // Полигоны стенки воды
 
     Vector H1; // Высоты поверхности в предыдущий момент времени
     Vector H2; // Высоты поверхности в "пред-предыдущий" момент времени
 
 
 private:
+    /*
+     * Загрузка полигонов
+     */
     void init_polygons();
 
 };

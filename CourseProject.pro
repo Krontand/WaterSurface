@@ -30,7 +30,8 @@ SOURCES += main.cpp\
     model/skybox.cpp \
     model/watermodel.cpp \
     vertex.cpp \
-    model/model.cpp
+    model/model.cpp \
+    render.cpp
 
 HEADERS  += mainwindow.h \
     imageitem.h \
@@ -46,7 +47,8 @@ HEADERS  += mainwindow.h \
     model/watermodel.h \
     vertex.h \
     model/model.h \
-    geometry/cmatrix
+    geometry/cmatrix \
+    render.h
 
 FORMS    += mainwindow.ui
 

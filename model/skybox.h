@@ -19,19 +19,17 @@ public:
     Skybox();
 
     void calc_normals() {};
-    void setnormals();
+
+    /*
+     * Перемещение скайбокса в заданную точку
+     */
     void moveto(Vector c);
 
-
-    Matrix surf_deform_norms;    
 private:
-    void init_polygons();
+    void init_polygons();       // Загрузка полигонов
 
-
-    Vector center;
-
-
-    double halfsize;
+    Vector center;              // Центр скайбокса (смещен вверх относительно реального центра куба)
+    double halfsize;            // Половина размера стороны скайбокса
 };
 
 #endif // SKYBOX_H

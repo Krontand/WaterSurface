@@ -133,15 +133,7 @@ void Scene::drawimage()
     {
         changed = false;
         memset(zbuf, 0, sizeof(int) * w * h);
-
-        for (int i = 0; i < w*h; i++)
-        {
-            ibuf[i][0] = 200;
-            ibuf[i][1] = 200;
-            ibuf[i][2] = 200;
-        }
-
-     //   memset(&(ibuf[0][0]), 200.0, 3 * w * h * sizeof(double));
+        memset(&(ibuf[0][0]), 0, 3 * w * h * sizeof(double));
 
         skybox->moveto(cam->eye);
 

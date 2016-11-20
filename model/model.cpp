@@ -62,16 +62,6 @@ struct PolyI Model::intencity(int num)
     return p;
 }
 
-
-struct PolyVecs Model::_vert(int num)
-{
-    struct PolyVecs p;
-    p.a = this->surf_screen[this->polygons[num].vert[0]];
-    p.b = this->surf_screen[this->polygons[num].vert[1]];
-    p.c = this->surf_screen[this->polygons[num].vert[2]];
-    return p;
-}
-
 Vector Model::get_normal(const Vector &a, const Vector &b, const Vector &c)
 {
     Vector n(3);
