@@ -15,8 +15,24 @@ void ImageItem::advance(int phase)
     {
         buf = image;
         this->setPixmap(QPixmap::fromImage(buf));
-        image.byteCount();
         memset(image.scanLine(0), 0, image.byteCount());
+    }
+
+}
+
+void ImageItem::fill(quint8 r, quint8 g, quint8 b)
+{
+
+    for (int i = 0; i < image.height(); i++)
+    {
+        quint8 *pix = image.scanLine(i);
+        for (int j = 0; j < image.width(); j++)
+        {
+                pix[0] = b;
+                pix[1] = g;
+                pix[2] = r;
+                pix++;
+        }
     }
 }
 

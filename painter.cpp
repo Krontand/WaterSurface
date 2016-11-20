@@ -119,6 +119,8 @@ void Scene::drawimage()
 {
     Matrix m = viewPort * projMatr * viewMatr;
 
+    Vector imax({230, 230, 230});
+
     model.setscreensurf(m);
     pool_model.setscreensurf(m);
     pool_model.setnormals();
@@ -131,28 +133,22 @@ void Scene::drawimage()
     {
         changed = false;
         memset(zbuf, 0, sizeof(int) * w * h);
-        memset(&ibuf[0][0], 0, 3 * w * h * sizeof(double));
+
+        for (int i = 0; i < w*h; i++)
+        {
+            ibuf[i][0] = 200;
+            ibuf[i][1] = 200;
+            ibuf[i][2] = 200;
+        }
+
+     //   memset(&(ibuf[0][0]), 200.0, 3 * w * h * sizeof(double));
 
         skybox->moveto(cam->eye);
 
         Matrix m1 =  viewMatr;
         skybox->setscreensurf(m1);
         skybox->clip(cam);
-/*
-        std::cout << "SKYBOX ORIGINAL VERTICES" << std::endl;
-        for (int i = 0; i < skybox->surf_screen.size()/4; i++)
-        {
-            std::cout << skybox->surf[i][0] << " " << skybox->surf_screen[i][1] << " " << skybox->surf_screen[i][2] << std::endl;
-        }
 
-        std::cout << "CAMERA'S POSITION IS " << cam->eye[0] << " " << cam->eye[1] << " " << cam->eye[2] << std::endl;
-
-        std::cout << "SKYBOX VERTICES" << std::endl;
-        for (int i = 0; i < skybox->surf_screen.size()/4; i++)
-        {
-            std::cout << skybox->surf_screen[i][0] << " " << skybox->surf_screen[i][1] << " " << skybox->surf_screen[i][2] << std::endl;
-        }
-*/
         m1 = viewPort * projMatr;
         skybox->setclipview(m1);
 
@@ -161,7 +157,7 @@ void Scene::drawimage()
         #pragma omp parallel for
         for (int i = 0; i < num; i++)
         {
-                triangle(skybox->vert(i), V(pool_model.i[4]), skybox->clip_polys[i], skybox->tex, false);
+                triangle(skybox->clipvert(i), imax, skybox->clip_polys[i], skybox->tex, false);
         }
         #pragma omp parallel for
         for (int i = 0; i < 4; i++)

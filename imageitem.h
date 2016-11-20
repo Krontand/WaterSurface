@@ -17,6 +17,7 @@ public:
     void set(int x, int y, quint8 r, quint8 g, quint8 b);
     void set(int x, int y, Vector c);
 
+    void fill(quint8 r, quint8 g, quint8 b);
 private:
     QImage image;
     QImage buf;

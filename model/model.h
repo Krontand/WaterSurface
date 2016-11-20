@@ -7,7 +7,8 @@
 #include <iterator>
 #include <iomanip>
 #include "geometry/geometry.h"
-
+#include "texture.h"
+#include "camera.h"
 
 #define RCOLOR 0
 #define GCOLOR 149
@@ -60,6 +61,7 @@ public:
 
 
     struct PolyVecs vert(int num);
+    struct PolyVecs _vert(int num);
     struct PolyI intencity(int num);
 
     double transparent;                   // Коэффициент прозрачности материала модели
@@ -72,14 +74,24 @@ public:
     Matrix surf_norms;                    // Координаты нормалей к треугольникам
 
     int xvert;
+
+    std::vector<TrPolygon> clip_polys;    // Полигоны модели
+    Texture *tex;
+
+    Matrix vert_clip;
+    void clip(Camera *cam);
+    void setclipview(const Matrix &m);
+    PolyVecs clipvert(int num);
 protected:
     /*
      * Расчет нормали к треугольнику abc
      */
     Vector get_normal(const Vector &a, const Vector &b, const Vector &c);
-
-
-
+    Matrix n;
+    Matrix o;
+    void clip_poly(int n, int &num, Matrix &vert);
+    int clip_plane(Matrix &dst, const Matrix &src, int num, Vector n, Vector o);
+    int verts;
 
 };
 
