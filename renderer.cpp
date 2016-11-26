@@ -1,12 +1,7 @@
-#include "painter.h"
+#include "renderer.h"
 
-
-
-Scene::Scene(int x, int y, int w, int h)
+Renderer::Renderer(int w, int h)
 {
-    this->w = w;
-    this->h = h;
-    pool_tex = new Texture(":/pool/pool.bmp");
     zbuf = new int[w * h];
     ibuf = Matrix(w*h, 3);
     ibuf_transparent = Matrix(w*h, 3);
@@ -17,57 +12,21 @@ Scene::Scene(int x, int y, int w, int h)
     memset(&ibuf_transparent[0][0], 0, 3 * w * h * sizeof(double));
     memset(c_tr, 0, sizeof(double) * w * h);
 
-    scene = new QGraphicsScene();
-    scene->setSceneRect(x, y, w, h);
-
-    img = new ImageItem(w, h);
-    setViewPort(x, y, w, h);
-
-    skybox = new Skybox();
-
-    model = WaterModel(70);
-    pool_model = PoolModel(model.surf[model.xvert+1][0],
-            model.surf[model.xvert*(model.xvert-1)-1][0],
-            model.surf[1][2],
-            model.surf[model.xvert-2][2]);
-
-    cam = new Camera(-.4, -.4, -.4);
-
-    setviewmatr();
-    setprojmatr();
-
-    light_dir = Vector(3);
-    light_dir[0] = -.9;
-    light_dir[1] = -.9;
-    light_dir[2] = .9;
-    normalize(light_dir);
-
-    scene->addItem(img);
-
-    light_color = Vector(3);
-    light_color = 255;
-
-
-    Matrix scale = Matrix(4, 4);
-    identity4(scale);
-    scale = scale / 1.6;
-    scale[3][3] = 1;
-    model.apply_matrix(scale);
-    pool_model.apply_matrix(scale);
-
-}
-
-Scene::~Scene()
-{
-    delete img;
-    delete scene;
-    delete c_tr;
-    delete zbuf;
-}
-
-void Scene::setViewPort(int x, int y, int w, int h)
-{
+    this->w = w;
+    this->h = h;
     viewPort = Matrix(4, 4);
+    projMatr = Matrix(4, 4);
+}
+
+Renderer::~Renderer()
+{
+    delete this->zbuf;
+    delete this->c_tr;
+}
+
+
+void Renderer::setViewPort(int x, int y, int w, int h)
+{
     identity4(viewPort);
     viewPort[0][3] = x+w/2.f;
     viewPort[1][3] = y+h/2.f;
@@ -79,7 +38,7 @@ void Scene::setViewPort(int x, int y, int w, int h)
     viewPort[2][2] = 1000/2.f;
 }
 
-void Scene::setviewmatr()
+void Renderer::setviewmatr(Camera *cam)
 {
     Vector z(3);
     Vector x(3);
@@ -106,172 +65,128 @@ void Scene::setviewmatr()
     viewMatr = Minv * Tr;
 }
 
-void Scene::setprojmatr()
+void Renderer::setprojmatr(Camera *cam)
 {
-    projMatr = Matrix(4, 4);
     identity4(projMatr);
     projMatr[3][2] = -1.0 /
             sqrt((cam->eye[0]) * (cam->eye[0]) + (cam->eye[1]) * (cam->eye[1]) + (cam->eye[2]) * (cam->eye[2]));
 
 }
 
-void Scene::drawimage()
+
+void Renderer::render(ImageItem *img, WaterModel *water, PoolModel *pool, Skybox *sky, Camera *cam, char flags)
 {
+    int width = img->image.width();
+    int height = img->image.height();
+
+    this->setprojmatr(cam);
+    this->setviewmatr(cam);
+    this->setViewPort(0, 0, width, height);
+
     Matrix m = viewPort * projMatr * viewMatr;
 
     Vector imax({230, 230, 230});
+    PolyI iwall;
 
-    model.setscreensurf(m);
-    pool_model.setscreensurf(m);
-    pool_model.setnormals();
-    int xv = model.xvert;
+    int xv = water->xvert;
 
-    double t = model.transparent;
+    double t = water->transparent;
 
-        // Стенки бассейна и скайбокс - рисуются, если изменилось положение камеры
-    if (changed)
+    if ((flags & 3) != 0)
     {
-        changed = false;
         memset(zbuf, 0, sizeof(int) * w * h);
-        memset(&(ibuf[0][0]), 0, 3 * w * h * sizeof(double));
-
-        skybox->moveto(cam->eye);
+        memset(&(ibuf[0][0]),0, 3 * w * h * sizeof(double));
+    }
+    if ((flags & 1) != 0)
+    {
+        sky->moveto(cam->eye);
 
         Matrix m1 =  viewMatr;
-        skybox->setscreensurf(m1);
-        skybox->clip(cam);
+        sky->setscreensurf(m1);
+        sky->clip(cam);
 
         m1 = viewPort * projMatr;
-        skybox->setclipview(m1);
+        sky->setclipview(m1);
 
-        int num = skybox->clip_polys.size();
+        int num = sky->clip_polys.size();
 
         #pragma omp parallel for
         for (int i = 0; i < num; i++)
         {
-                triangle(skybox->clipvert(i), imax, skybox->clip_polys[i], skybox->tex, false);
+                triangle(sky->clipvert(i), imax, sky->clip_polys[i], sky->tex, false);
         }
+    }
+    if ((flags & 2) != 0)
+    {
+        pool->setscreensurf(m);
+        pool->setnormals();
+
         #pragma omp parallel for
         for (int i = 0; i < 4; i++)
         {
-            if (pool_model.surf_deform_norms[2*i][2] > 0)
+            if (pool->surf_deform_norms[2*i][2] > 0)
             {
-                triangle(pool_model.vert(2*i), V(pool_model.i[4]), pool_model.polygons[2*i], pool_tex);
-                triangle(pool_model.vert(2*i+1), V(pool_model.i[4]), pool_model.polygons[2*i+1], pool_tex);
+                triangle(pool->vert(2*i), V(pool->i[4]), pool->polygons[2*i], pool->tex);
+                triangle(pool->vert(2*i+1), V(pool->i[4]), pool->polygons[2*i+1], pool->tex);
             }
         }
-        triangle(pool_model.vert(8), V(pool_model.i[4]), pool_model.polygons[8], pool_tex);
-        triangle(pool_model.vert(9), V(pool_model.i[4]), pool_model.polygons[9], pool_tex);
+        triangle(pool->vert(8), V(pool->i[4]), pool->polygons[8], pool->tex);
+        triangle(pool->vert(9), V(pool->i[4]), pool->polygons[9], pool->tex);
     }
 
-    // Поверхность воды
-    int num = model.polygons.size();
-    #pragma omp parallel for
-    for (int i = 0; i < num; i++)
+    if ((flags & 4) != 0)
     {
-        triangle(model.vert(i), model.intencity(i), t);
-    }
-
-    PolyI iwall;
-    iwall.ia = model.i_wall;
-    iwall.ib = iwall.ia;
-    iwall.ic = iwall.ia;
-
-    // Стенки воды
-    #pragma omp parallel for
-    for (int i = 0; i < 7; i += 2)
-    {
-        if (pool_model.surf_deform_norms[6-i][2] <= 0)
+        water->setscreensurf(m);
+        memset(&ibuf_transparent[0][0], 0, 3 * w * h * sizeof(double));
+        memset(c_tr, 0, sizeof(double) * w * h);
+        // Поверхность воды
+        int num = water->polygons.size();
+        #pragma omp parallel for
+        for (int i = 0; i < num; i++)
         {
-            for(int l = i*(xv-3); l < (i+2)*(xv - 3); l++)
+            triangle(water->vert(i), water->intencity(i), t);
+        }
+        iwall.ia = water->i_wall;
+        iwall.ib = iwall.ia;
+        iwall.ic = iwall.ia;
+        // Стенки воды
+        #pragma omp parallel for
+        for (int i = 0; i < 7; i += 2)
+        {
+            if (pool->surf_deform_norms[6-i][2] <= 0)
             {
-                triangle(model.wallvert(l), iwall, t);
+                for(int l = i*(xv-3); l < (i+2)*(xv - 3); l++)
+                {
+                    triangle(water->wallvert(l), iwall, t);
+                }
             }
         }
     }
+
     // Объединение буферов и вывод на изображение
     #pragma omp parallel for
-    for (int i = 0; i < h; i++)
-        for (int j = 0; j < w; j++)
+    for (int i = 0; i < height; i++)
+        for (int j = 0; j < width; j++)
         {
             int k = i*w + j;
             img->set(j, i, ibuf_transparent[k][0] + (1 - c_tr[k]) * ibuf[k][0]+5,
                 ibuf_transparent[k][1] + (1 - c_tr[k]) * ibuf[k][2]+5,
                 ibuf_transparent[k][1] + (1 - c_tr[k]) * ibuf[k][2]+5);
         }
-    memset(&ibuf_transparent[0][0], 0, 3 * w * h * sizeof(double));
-    memset(c_tr, 0, sizeof(double) * w * h);
 }
 
-void Scene::updheights()
-{
-    model.updheights();
-}
 
-void Scene::rand_disturb()
-{
-    int k = rand() % (model.xvert * model.xvert - model.xvert);
-    if ((k+1) % model.xvert == 0)
-        k--;
 
-    model.H1[k] += .05;
-    model.H2[k] += .05;
 
-    model.H1[k + 1] += .05;
-    model.H2[k + 1] += .05;
 
-    model.H1[k + model.xvert] += .05;
-    model.H2[k + model.xvert] += .05;
 
-    model.H1[k + model.xvert + 1] += .05;
-    model.H2[k + model.xvert + 1] += .05;
-}
 
-void Scene::calc_normals()
-{
-    model.calc_normals();
-    pool_model.calc_normals();
-}
 
-void Scene::calc_intencities()
-{
-    Vector v = norm(cam->eye);
-    Vector h = norm(v + light_dir);
 
-    int xvert = model.xvert;
 
-    #pragma omp parallel for
-    for (int i = 1; i < xvert-1; ++i)
-    {
-        for (int j = 1; j < xvert-1; ++j)
-        {
-            int k = i * xvert + j;
-            // Фоновое освещение
-            model.i[k] = model.color * 0.1;
-            // Диффузное освещение (по Ламберту)
-            model.i[k] += 0.7 * model.color * std::max(dot(light_dir, norm(V(model.vert_norms[k]))), 0.0);
-            // Зеркальное освещение (по Блинну-Фонгу)
-            model.i[k] += 0.2 * light_color * pow(std::max(0.0, dot(h, norm(V(model.vert_norms[k])))), 20);
-        }
-    }
 
-    xvert = pool_model.xvert;
-    #pragma omp parallel for
-    for (int i = 0; i < 5; ++i)
-    {
-            // Фоновое освещение
-            pool_model.i[i] = pool_model.color * 0.6;
-            // Диффузное освещение (по Ламберту)
-            pool_model.i[i] += 0.9 * pool_model.color * std::max(dot(light_dir, norm(V(pool_model.surf_norms[2*i]))), 0.0);
-    }
-}
 
-void Scene::set_changed()
-{
-    changed = true;
-}
-
-void Scene::triangle(const struct PolyVecs &p, Vector i_, TrPolygon uv, Texture *tex, bool usez)
+void Renderer::triangle(const struct PolyVecs &p, Vector i_, TrPolygon uv, ImageItem *tex, bool usez)
 {
     double u[] = {uv.u[0], uv.u[1], uv.u[2]};
     double v[] = {uv.v[0], uv.v[1], uv.v[2]};
@@ -472,7 +387,7 @@ void Scene::triangle(const struct PolyVecs &p, Vector i_, TrPolygon uv, Texture 
 }
 
 
-void Scene::triangle(const struct PolyVecs &p, struct PolyI i, double c_)
+void Renderer::triangle(const struct PolyVecs &p, struct PolyI i, double c_)
 {
     const Vector *a = &(p.a);
     const Vector *b = &(p.b);
@@ -663,4 +578,3 @@ void Scene::triangle(const struct PolyVecs &p, struct PolyI i, double c_)
         wi2 += di23;
     }
 }
-

@@ -19,7 +19,6 @@ QMAKE_CXXFLAGS += -std=c++11
 SOURCES += main.cpp\
         mainwindow.cpp \
     imageitem.cpp \
-    painter.cpp \
     camera.cpp \
     cammod.cpp \
     mgraphicsview.cpp \
@@ -31,11 +30,11 @@ SOURCES += main.cpp\
     model/watermodel.cpp \
     vertex.cpp \
     model/model.cpp \
-    render.cpp
+    scene.cpp \
+    renderer.cpp
 
 HEADERS  += mainwindow.h \
     imageitem.h \
-    painter.h \
     camera.h \
     cammod.h \
     mgraphicsview.h \
@@ -48,7 +47,8 @@ HEADERS  += mainwindow.h \
     vertex.h \
     model/model.h \
     geometry/cmatrix \
-    render.h
+    scene.h \
+    renderer.h
 
 FORMS    += mainwindow.ui
 

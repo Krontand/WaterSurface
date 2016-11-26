@@ -10,6 +10,14 @@ class ImageItem : public QGraphicsPixmapItem
 public:
     ImageItem(int w, int h);
 
+    ImageItem(const char *name);
+
+    /*
+     * Получить тексель с координатами (u, v)
+     */
+    QRgb texel(double u, double v);
+
+
     /*
      * Вывод изображения на экран
      */
@@ -37,7 +45,6 @@ public:
      */
     void fill(quint8 r, quint8 g, quint8 b);
 
-private:
     QImage image;
     QImage buf;
 };

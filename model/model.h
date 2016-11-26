@@ -7,7 +7,7 @@
 #include <iterator>
 #include <iomanip>
 #include "geometry/geometry.h"
-#include "texture.h"
+#include "imageitem.h"
 #include "camera.h"
 
 #define RCOLOR 0
@@ -98,7 +98,7 @@ public:
     Matrix vert_norms;                    // Координаты нормалей к вершинам
     Matrix surf_norms;                    // Координаты нормалей к треугольникам
     std::vector<TrPolygon> clip_polys;    // Полигоны модели после отсечения пирамидой видимости
-    Texture *tex;                         // Текстура модели
+    ImageItem *tex;                         // Текстура модели
     Matrix vert_clip;                     // Вершины модели после отсечения
 
     int xvert;

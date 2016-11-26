@@ -6,6 +6,8 @@ PoolModel::PoolModel()
 
 PoolModel::PoolModel(double x1, double x2, double z1, double z2)
 {
+    this->tex = new ImageItem(":/pool/pool.bmp");
+
     const int xv = 4;
     const int zv = 2;
     xvert = xv;

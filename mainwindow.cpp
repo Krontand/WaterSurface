@@ -8,8 +8,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     QTimer *timer = new QTimer(this);
     QTimer *timer1 = new QTimer(this);
+
     waterscene = new Scene(0, 0, ui->graphicsView->width() - 5, ui->graphicsView->height() - 5);
-    waterscene->drawimage();
+
+  //  waterscene->render();
 
     ui->graphicsView->setScene(waterscene->scene);
     cmod = new CamMod(this);

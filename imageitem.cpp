@@ -9,12 +9,25 @@ ImageItem::ImageItem(int w, int h)
     QGraphicsPixmapItem(QPixmap::fromImage(image));
 }
 
+ImageItem::ImageItem(const char *name)
+{
+    image = QImage(name);
+}
+
+QRgb ImageItem::texel(double u, double v)
+{
+    if (u <= 0 || u >= 1 || v <= 0 || v >= 1)
+        return qRgb(0,250,0);
+
+    return this->image.pixel(u * this->image.width(), v * this->image.height());
+}
+
 void ImageItem::advance(int phase)
 {
     if (!phase)
     {
         buf = image;
-        this->setPixmap(QPixmap::fromImage(buf));
+        this->setPixmap(QPixmap::fromImage(image));
         memset(image.scanLine(0), 0, image.byteCount());
     }
 

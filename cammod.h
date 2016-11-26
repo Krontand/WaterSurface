@@ -4,7 +4,7 @@
 
 #include <QObject>
 #include <QtGui>
-#include "painter.h"
+#include "scene.h"
 
 class CamMod : public QObject
 {

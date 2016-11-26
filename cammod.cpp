@@ -40,7 +40,7 @@ void CamMod::rotatex(double angle)
 
 void CamMod::drawimage()
 {
-    scene->drawimage();
+    scene->render();
 }
 
 void CamMod::updatescene()
@@ -48,8 +48,7 @@ void CamMod::updatescene()
     scene->updheights();
     scene->calc_normals();
     scene->calc_intencities();
-    scene->setviewmatr();
-    scene->drawimage();
+    scene->render();
 }
 
 void CamMod::rand_disturb()

@@ -10,7 +10,7 @@ Skybox::Skybox()
 
     halfsize = 0.05;
 
-    tex = new Texture(":/sky/skybox.bmp");
+    tex = new ImageItem(":/sky/skybox.bmp");
     for(int j = 0; j < xv; ++j)
     {
         surf[j][1] = halfsize + halfsize/3;

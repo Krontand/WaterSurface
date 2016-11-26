@@ -6,7 +6,7 @@
 #include <QDesktopWidget>
 #include "imageitem.h"
 #include <QTimer>
-#include <painter.h>
+#include <scene.h>
 #include "cammod.h"
 
 
