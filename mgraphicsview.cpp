@@ -8,14 +8,17 @@ MGraphicsView::MGraphicsView(QWidget *parent) : QGraphicsView(parent)
 void MGraphicsView::mouseMoveEvent(QMouseEvent *pe)
 {
     cmod->mouse_move(pe);
+    pe->ignore();
 }
 
 void MGraphicsView::mousePressEvent(QMouseEvent *pe)
 {
     cmod->mouse_press(pe);
+  //  pe->ignore();
 }
 
 void MGraphicsView::mouseReleaseEvent(QMouseEvent *pe)
 {
     cmod->mouse_release(pe);
+    pe->ignore();
 }

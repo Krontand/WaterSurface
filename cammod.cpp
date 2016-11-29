@@ -28,18 +28,13 @@ void CamMod::mouse_move(QMouseEvent *pe)
 
 void CamMod::mouse_release(QMouseEvent *pe)
 {
-    std::cout << "RELEASED";
-    xpos == -1;
+    xpos = -1;
 }
 
 void CamMod::mouse_press(QMouseEvent *pe)
 {
-   // if (pe->button() == Qt::NoButton)
-  //      this->leftclick(pe);
-    if (pe->button() == Qt::LeftButton)
-        this->leftclick(pe);
     if (pe->button() == Qt::RightButton)
-        this->leftclick(pe);
+        this->rightclick(pe);
 
 }
 
@@ -92,5 +87,5 @@ void CamMod::leftclick(QMouseEvent *pe)
 
 void CamMod::rightclick(QMouseEvent *pe)
 {
-
+    scene->disturb(pe->x(), pe->y());
 }

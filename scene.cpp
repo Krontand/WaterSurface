@@ -149,4 +149,34 @@ void Scene::set_changed()
     changed = true;
 }
 
+void Scene::disturb(int x, int y)
+{
+    bool b = true;
+    for (int i = 0; (i < model->polygons.size()) && b; i++)
+    {
+        PolyVecs buf = model->vert(i);
+
+        float a = (buf.a[0] - x) * (buf.b[1] - buf.a[1]) - (buf.b[0] - buf.a[0]) * (buf.a[1] - y);
+        float b = (buf.b[0] - x) * (buf.c[1] - buf.b[1]) - (buf.c[0] - buf.b[0]) * (buf.b[1] - y);
+        float c = (buf.c[0] - x) * (buf.a[1] - buf.c[1]) - (buf.a[0] - buf.c[0]) * (buf.c[1] - y);
+
+        if ((a >= 0 && b >= 0 && c >= 0) || (a <= 0 && b <= 0 && c <= 0))
+        {
+            int k = model->polygons[i].vert[0];
+            model->H1[k] += .05;
+            model->H2[k] += .05;
+
+            model->H1[k + 1] += .05;
+            model->H2[k + 1] += .05;
+
+            model->H1[k + model->xvert] += .05;
+            model->H2[k + model->xvert] += .05;
+
+            model->H1[k + model->xvert + 1] += .05;
+            model->H2[k + model->xvert + 1] += .05;
+            b = false;
+        }
+    }
+}
+
 

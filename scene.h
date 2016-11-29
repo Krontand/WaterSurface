@@ -55,6 +55,8 @@ public:
      */
     void set_changed();
 
+    void disturb(int x, int y);
+
 
     Vector light_dir;           // Направление света (источник в бесконечности)
     Camera *cam;                // Камера (основная)
@@ -81,6 +83,8 @@ private:
 
     Renderer *renderer;
     Renderer *refl_renderer;
+
+    const double amax = 0.7;
 
 
 };
