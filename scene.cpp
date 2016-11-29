@@ -71,7 +71,7 @@ void Scene::render()
 
         refl_renderer->render(this->model->tex, this->model, this->pool_model, this->skybox, this->reflcam, 0.45, 1);
 
-        this->model->rotateuv(this->cam->angley);
+        this->model->rotateuv(-this->cam->anglex);
 
         renderer->render(this->img, this->model, this->pool_model, this->skybox, this->cam, 1, 7);
     }

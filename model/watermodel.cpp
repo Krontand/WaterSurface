@@ -105,9 +105,9 @@ void WaterModel::init_polygons()
             buf.vert[0] = k;
             buf.vert[1] = k+xv;
             buf.vert[2] = k+xv+1;
-            buf.u[0] = -(this->surf[k][0]) * 0.7 + 0.5;
-            buf.u[1] = -(this->surf[k+xv][0]) * 0.7 + 0.5;
-            buf.u[2] = -(this->surf[k+xv+1][0]) * 0.7 + 0.5;
+            buf.u[0] = (this->surf[k][0]) * 0.7 + 0.5;
+            buf.u[1] = (this->surf[k+xv][0]) * 0.7 + 0.5;
+            buf.u[2] = (this->surf[k+xv+1][0]) * 0.7 + 0.5;
             buf.v[0] = -(this->surf[k][2]) * 0.7 + 0.5;
             buf.v[1] = -(this->surf[k+xv][2]) * 0.7 + 0.5;
             buf.v[2] = -(this->surf[k+xv+1][2]) * 0.7 + 0.5;
@@ -115,9 +115,9 @@ void WaterModel::init_polygons()
             buf.vert[0] = k;
             buf.vert[1] = k+1;
             buf.vert[2] = k+xv+1;
-            buf.u[0] = -(this->surf[k][0]) * 0.7 + 0.5;
-            buf.u[1] = -(this->surf[k+1][0]) * 0.7 + 0.5;
-            buf.u[2] = -(this->surf[k+xv+1][0]) * 0.7 + 0.5;
+            buf.u[0] = (this->surf[k][0]) * 0.7 + 0.5;
+            buf.u[1] = (this->surf[k+1][0]) * 0.7 + 0.5;
+            buf.u[2] = (this->surf[k+xv+1][0]) * 0.7 + 0.5;
             buf.v[0] = -(this->surf[k][2]) * 0.7 + 0.5;
             buf.v[1] = -(this->surf[k+1][2]) * 0.7 + 0.5;
             buf.v[2] = -(this->surf[k+xv+1][2]) * 0.7 + 0.5;

@@ -14,11 +14,18 @@ public:
     Scene *scene;
     void mouseEvent(QMouseEvent *pe);
 
+    void mouse_move(QMouseEvent *pe);
+    void mouse_press(QMouseEvent *pe);
+    void mouse_release(QMouseEvent *pe);
+
 public slots:
     void updatescene();
     void rand_disturb();
 
 private:
+    void leftclick(QMouseEvent *pe);
+    void rightclick(QMouseEvent *pe);
+
     void rotatey(double angle);
     void rotatex(double angle);
     int xpos;
