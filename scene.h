@@ -80,6 +80,7 @@ private:
     Vector light_color;         // Цвет освещения
 
     Renderer *renderer;
+    Renderer *refl_renderer;
 
 
 };

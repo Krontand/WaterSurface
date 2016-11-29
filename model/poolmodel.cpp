@@ -17,9 +17,9 @@ PoolModel::PoolModel(double x1, double x2, double z1, double z2)
 
     for(int j = 0; j < xv; ++j)
     {
-        surf[j][1] = 1.2 * YS;
+        surf[j][1] = 1.2 * -0.1;
         surf[j][3] = 1;
-        surf[j+xv][1] = 1.2 * YS + .3;
+        surf[j+xv][1] = 1.2 * -0.1 + .3;
         surf[j+xv][3] = 1;
     }
 

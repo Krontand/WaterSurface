@@ -23,6 +23,7 @@ Scene::Scene(int x, int y, int w, int h)
             model->surf[model->xvert-2][2]);
 
     cam = new Camera(-.4, -.4, -.4);
+    reflcam = new Camera(0, 0, 0);
 
     light_dir = Vector(3);
     light_dir[0] = -.9;
@@ -36,6 +37,7 @@ Scene::Scene(int x, int y, int w, int h)
     light_color = 255;
 
     renderer = new Renderer(w, h);
+    refl_renderer = new Renderer(w/3, h/3);
 
     Matrix scale = Matrix(4, 4);
     identity4(scale);
@@ -61,11 +63,21 @@ void Scene::render()
     if (changed)
     {
         changed = false;
-        renderer->render(this->img, this->model, this->pool_model, this->skybox, this->cam, 7);
+
+        *this->reflcam = *this->cam;
+        this->reflcam->eye[0] = this->reflcam->center[0] - this->cam->center[0] + this->cam->eye[0];
+        this->reflcam->eye[1] = this->reflcam->center[1] + this->cam->center[1] - this->cam->eye[1];
+        this->reflcam->eye[2] = this->reflcam->center[2] - this->cam->center[2] + this->cam->eye[2];
+
+        refl_renderer->render(this->model->tex, this->model, this->pool_model, this->skybox, this->reflcam, 0.45, 1);
+
+        this->model->rotateuv(this->cam->angley);
+
+        renderer->render(this->img, this->model, this->pool_model, this->skybox, this->cam, 1, 7);
     }
     else
     {
-        renderer->render(this->img, this->model, this->pool_model, this->skybox, this->cam, 4);
+        renderer->render(this->img, this->model, this->pool_model, this->skybox, this->cam, 1, 4);
     }
 }
 

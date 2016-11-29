@@ -27,7 +27,7 @@ WaterModel::WaterModel(double x)
         for(int j = -x2; j < x2; ++j)
         {
             surf[k][0] = i/x;
-            surf[k][1] = YS;
+            surf[k][1] = ybase;
             surf[k][2] = j/x;
             surf[k][3] = 1;
             k++;
@@ -41,7 +41,7 @@ WaterModel::WaterModel(double x)
     for(int l = 1; l < xvert-1; l++)
     {
         surf[n + l - 1][0] = surf[l+xvert][0];
-        surf[n + l - 1][1] = 1.2 * YS + .3;
+        surf[n + l - 1][1] = 1.2 * ybase + .3;
         surf[n + l - 1][2] = surf[l+xvert][2];
         surf[n + l - 1][3] = surf[l+xvert][3];
     }
@@ -49,7 +49,7 @@ WaterModel::WaterModel(double x)
     for(int l = 1; l < xvert-1; l++)
     {
         surf[n + xvert + l - 3][0] = surf[xvert * l + 1][0];
-        surf[n + xvert + l - 3][1] = 1.2 * YS + .3;
+        surf[n + xvert + l - 3][1] = 1.2 * ybase + .3;
         surf[n + xvert + l - 3][2] = surf[xvert * l + 1][2];
         surf[n + xvert + l - 3][3] = surf[xvert * l + 1][3];
     }
@@ -57,7 +57,7 @@ WaterModel::WaterModel(double x)
     for(int l = 1; l < xvert-1; l++)
     {
         surf[n + 2*xvert + l - 5][0] = surf[n - 2*xvert + l][0];
-        surf[n + 2*xvert + l - 5][1] = 1.2 * YS + .3;
+        surf[n + 2*xvert + l - 5][1] = 1.2 * ybase + .3;
         surf[n + 2*xvert + l - 5][2] = surf[n - 2*xvert + l][2];
         surf[n + 2*xvert + l - 5][3] = surf[n - 2*xvert + l][3];
     }
@@ -65,28 +65,30 @@ WaterModel::WaterModel(double x)
     for(int l = 1; l < xvert-1; l++)
     {
         surf[n + 3*xvert + l - 7][0] = surf[xvert - 2 + xvert * l][0];
-        surf[n + 3*xvert + l - 7][1] = 1.2 * YS + .3;
+        surf[n + 3*xvert + l - 7][1] = 1.2 * ybase + .3;
         surf[n + 3*xvert + l - 7][2] = surf[xvert - 2 + xvert * l][2];
         surf[n + 3*xvert + l - 7][3] = surf[xvert - 2 + xvert * l][3];
     }
 
     i_wall = Vector(3);
-    i_wall[0] = RCOLOR*.3;
-    i_wall[1] = GCOLOR*.3;
-    i_wall[2] = BCOLOR*.3;
+    i_wall[0] = rcolor*.3;
+    i_wall[1] = gcolor*.3;
+    i_wall[2] = bcolor*.3;
 
 
-    H1 = Vector(YS/1.6, x*x);
-    H2 = Vector(YS/1.6, x*x);
+    H1 = Vector(ybase/1.6, x*x);
+    H2 = Vector(ybase/1.6, x*x);
 
     surf_norms = Matrix(2 * xvert * xvert, 3);
     vert_norms = Matrix(xvert * xvert, 3);
     i = Matrix(xvert*xvert, 3);
     color = Vector(3);
-    color[0] = RCOLOR;
-    color[1] = GCOLOR;
-    color[2] = BCOLOR;
 
+    color[0] = rcolor;
+    color[1] = gcolor;
+    color[2] = bcolor;
+
+    angle = 0;
     init_polygons();
 }
 
@@ -103,24 +105,25 @@ void WaterModel::init_polygons()
             buf.vert[0] = k;
             buf.vert[1] = k+xv;
             buf.vert[2] = k+xv+1;
-            buf.u[0] = this->surf[k][0] + 0.5;
-            buf.u[1] = this->surf[k+xv][0] + 0.5;
-            buf.u[2] = this->surf[k+xv+1][0] + 0.5;
-            buf.v[0] = this->surf[k][2] + 0.5;
-            buf.v[1] = this->surf[k+xv][2] + 0.5;
-            buf.v[2] = this->surf[k+xv+1][2] + 0.5;
+            buf.u[0] = -(this->surf[k][0]) * 0.7 + 0.5;
+            buf.u[1] = -(this->surf[k+xv][0]) * 0.7 + 0.5;
+            buf.u[2] = -(this->surf[k+xv+1][0]) * 0.7 + 0.5;
+            buf.v[0] = -(this->surf[k][2]) * 0.7 + 0.5;
+            buf.v[1] = -(this->surf[k+xv][2]) * 0.7 + 0.5;
+            buf.v[2] = -(this->surf[k+xv+1][2]) * 0.7 + 0.5;
             polygons.push_back(buf);
             buf.vert[0] = k;
             buf.vert[1] = k+1;
             buf.vert[2] = k+xv+1;
-            buf.u[0] = this->surf[k][0] + 0.5;
-            buf.u[1] = this->surf[k+1][0] + 0.5;
-            buf.u[2] = this->surf[k+xv+1][0] + 0.5;
-            buf.v[0] = this->surf[k][2] + 0.5;
-            buf.v[1] = this->surf[k+1][2] + 0.5;
-            buf.v[2] = this->surf[k+xv+1][2] + 0.5;
+            buf.u[0] = -(this->surf[k][0]) * 0.7 + 0.5;
+            buf.u[1] = -(this->surf[k+1][0]) * 0.7 + 0.5;
+            buf.u[2] = -(this->surf[k+xv+1][0]) * 0.7 + 0.5;
+            buf.v[0] = -(this->surf[k][2]) * 0.7 + 0.5;
+            buf.v[1] = -(this->surf[k+1][2]) * 0.7 + 0.5;
+            buf.v[2] = -(this->surf[k+xv+1][2]) * 0.7 + 0.5;
             polygons.push_back(buf);
         }
+
         buf.u[0] = 0;
         buf.u[1] = 0;
         buf.u[2] = 0;
@@ -184,6 +187,29 @@ struct PolyVecs WaterModel::wallvert(int num)
     return p;
 }
 
+void WaterModel::rotateuv(double angle)
+{
+    double rotation = angle - this->angle;
+    this->angle = angle;
+    double cosa = cos(rotation);
+    double sina = sin(rotation);
+
+    TrPolygon buf;
+
+    for (int i = 0; i < this->polygons.size(); i++)
+    {
+        buf.u[0] = 0.5 + (polygons[i].u[0] - 0.5) * cosa - (polygons[i].v[0] - 0.5) * sina;
+        buf.u[1] = 0.5 + (polygons[i].u[1] - 0.5) * cosa - (polygons[i].v[1] - 0.5) * sina;
+        buf.u[2] = 0.5 + (polygons[i].u[2] - 0.5) * cosa - (polygons[i].v[2] - 0.5) * sina;
+
+        buf.v[0] = 0.5 + (polygons[i].v[0] - 0.5) * cosa + (polygons[i].u[0] - 0.5) * sina;
+        buf.v[1] = 0.5 + (polygons[i].v[1] - 0.5) * cosa + (polygons[i].u[1] - 0.5) * sina;
+        buf.v[2] = 0.5 + (polygons[i].v[2] - 0.5) * cosa + (polygons[i].u[2] - 0.5) * sina;
+
+        polygons[i] = buf;
+    }
+}
+
 void WaterModel::updheights()
 {
     int k = xvert+1;
@@ -191,11 +217,10 @@ void WaterModel::updheights()
     {
         for (int j = 2; j < xvert; ++j)
         {
-            surf[k][1] = (1 - W)*H1[k] + W / 4.0 * (H2[k+1] + H2[k-1] + H2[k+xvert] + H2[k-xvert]);
+            surf[k][1] = (1 - w)*H1[k] + w / 4.0 * (H2[k+1] + H2[k-1] + H2[k+xvert] + H2[k-xvert]);
             k++;
         }
         k +=2;
-
     }
     H1 = H2;
     for (int i = 0; i < H2.size(); ++i)

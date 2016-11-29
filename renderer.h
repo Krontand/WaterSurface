@@ -15,7 +15,7 @@ public:
     Renderer(int w, int h);
     ~Renderer();
 
-    void render(ImageItem *img, WaterModel *water, PoolModel *pool, Skybox *sky, Camera *cam, char flags);
+    void render(ImageItem *img, WaterModel *water, PoolModel *pool, Skybox *sky, Camera *cam, double part, char flags);
 
 private:
     /*
@@ -31,7 +31,7 @@ private:
     /*
      * Вычислить матрицу перехода к экранным координатам
      */
-    void setViewPort(int x, int y, int w, int h);
+    void setViewPort(int x, int y, int w, int h, double part);
 
     /*
      * Закрасить полигон (с ненулевой прозрачностью)
@@ -40,6 +40,8 @@ private:
      * c_ - показатель прозрачности полигона
      */
     void triangle(const struct PolyVecs &p, struct PolyI i, double c_);
+
+    void triangle(const struct PolyVecs &p, struct PolyI i, TrPolygon uv, ImageItem *tex, double c_);
 
     /*
      * Закрасить полигон текстурой

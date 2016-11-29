@@ -25,7 +25,7 @@ Renderer::~Renderer()
 }
 
 
-void Renderer::setViewPort(int x, int y, int w, int h)
+void Renderer::setViewPort(int x, int y, int w, int h, double part)
 {
     identity4(viewPort);
     viewPort[0][3] = x+w/2.f;
@@ -33,8 +33,8 @@ void Renderer::setViewPort(int x, int y, int w, int h)
 
     viewPort[2][3] = 1000/2.f;
 
-    viewPort[0][0] = w/2.f;
-    viewPort[1][1] = h/2.f;
+    viewPort[0][0] = w/2.f/part;
+    viewPort[1][1] = h/2.f/part;
     viewPort[2][2] = 1000/2.f;
 }
 
@@ -74,14 +74,14 @@ void Renderer::setprojmatr(Camera *cam)
 }
 
 
-void Renderer::render(ImageItem *img, WaterModel *water, PoolModel *pool, Skybox *sky, Camera *cam, char flags)
+void Renderer::render(ImageItem *img, WaterModel *water, PoolModel *pool, Skybox *sky, Camera *cam, double part, char flags)
 {
     int width = img->image.width();
     int height = img->image.height();
 
     this->setprojmatr(cam);
     this->setviewmatr(cam);
-    this->setViewPort(0, 0, width, height);
+    this->setViewPort(0, 0, width, height, part);
 
     Matrix m = viewPort * projMatr * viewMatr;
 
@@ -144,7 +144,8 @@ void Renderer::render(ImageItem *img, WaterModel *water, PoolModel *pool, Skybox
         #pragma omp parallel for
         for (int i = 0; i < num; i++)
         {
-            triangle(water->vert(i), water->intencity(i), t);
+            triangle(water->vert(i), water->intencity(i), water->polygons[i], water->tex, t);
+      //      triangle(water->vert(i), water->intencity(i), t);
         }
         iwall.ia = water->i_wall;
         iwall.ib = iwall.ia;
@@ -174,16 +175,6 @@ void Renderer::render(ImageItem *img, WaterModel *water, PoolModel *pool, Skybox
                 ibuf_transparent[k][1] + (1 - c_tr[k]) * ibuf[k][2]+5);
         }
 }
-
-
-
-
-
-
-
-
-
-
 
 
 void Renderer::triangle(const struct PolyVecs &p, Vector i_, TrPolygon uv, ImageItem *tex, bool usez)
@@ -216,21 +207,9 @@ void Renderer::triangle(const struct PolyVecs &p, Vector i_, TrPolygon uv, Image
     float z, dz;
 
     // Сортировка по Y
-    if ((*b)[1] < (*a)[1]) {
-        tv = a; a = b; b = tv;
-        t = u[0]; u[0] = u[1]; u[1] = t;
-        t = v[0]; v[0] = v[1]; v[1] = t;
-    }
-    if ((*c)[1] < (*a)[1]) {
-        tv = a; a = c; c = tv;
-        t = u[0]; u[0] = u[2]; u[2] = t;
-        t = v[0]; v[0] = v[2]; v[2] = t;
-    }
-    if ((*b)[1] > (*c)[1]) {
-        tv = c; c = b; b = tv;
-        t = u[1]; u[1] = u[2]; u[2] = t;
-        t = v[1]; v[1] = v[2]; v[2] = t;
-    }
+    if ((*b)[1] < (*a)[1]) { std::swap(a, b); std::swap(u[0], u[1]); std::swap(v[0], v[1]); }
+    if ((*c)[1] < (*a)[1]) { std::swap(a, c); std::swap(u[0], u[2]); std::swap(v[0], v[2]); }
+    if ((*b)[1] > (*c)[1]) { std::swap(b, c); std::swap(u[1], u[2]); std::swap(v[1], v[2]); }
 
     if ((int)(*a)[1] == (int)(*c)[1])
         return;
@@ -386,7 +365,6 @@ void Renderer::triangle(const struct PolyVecs &p, Vector i_, TrPolygon uv, Image
     }
 }
 
-
 void Renderer::triangle(const struct PolyVecs &p, struct PolyI i, double c_)
 {
     const Vector *a = &(p.a);
@@ -395,23 +373,14 @@ void Renderer::triangle(const struct PolyVecs &p, struct PolyI i, double c_)
     const Vector *t;
 
 
-    if ((*b)[1] < (*a)[1]) {
-        t = a; a = b; b = t;
-        i.ia.swap(i.ib);
-    }
-    if ((*c)[1] < (*a)[1]) {
-        t = c; c = a; a = t;
-        i.ia.swap(i.ic);
-    }
-    if ((*b)[1] > (*c)[1]) {
-        t = c; c = b; b = t;
-        i.ib.swap(i.ic);
-    }
+    if ((*b)[1] < (*a)[1])
+        { std::swap(a, b); std::swap(i.ia, i.ib); }
+    if ((*c)[1] < (*a)[1])
+        { std::swap(a, c); std::swap(i.ia, i.ic); }
+    if ((*b)[1] > (*c)[1])
+        { std::swap(b, c); std::swap(i.ic, i.ib); }
     if (int((*a)[1]+.5) == int((*b)[1]+.5) && (*b)[0] < (*a)[0])
-    {
-        t = a; a = b; b = t;
-        i.ia.swap(i.ib);
-    }
+        { std::swap(a, b); std::swap(i.ia, i.ib); }
 
     int x1 = int((*a)[0] + .5);
     int x2 = int((*b)[0] + .5);
@@ -428,7 +397,6 @@ void Renderer::triangle(const struct PolyVecs &p, struct PolyI i, double c_)
     Vector di13(3);
     Vector di12(3);
     Vector di23(3);
-
 
     if (y3 != y1)
     {
@@ -485,11 +453,24 @@ void Renderer::triangle(const struct PolyVecs &p, struct PolyI i, double c_)
 
     if (dx13 > dx12)
     {
-        swap_(&dz13, &dz12);
-        swap_(&dx13, &dx12);
-        di13.swap(di12);
+        std::swap(dz13, dz12);
+        std::swap(dx13, dx12);
+        std::swap(di13, di12);
     }
-    for (int i = y1; i < y2; i++)
+
+    if (y1 == y2){
+        wx2 = x2;
+        wz2 = z2;
+        wi2 = i.ib;
+    }
+    if (_dx13 < dx23)
+    {
+        std::swap(_dz13, dz23);
+        std::swap(_dx13, dx23);
+        std::swap(_di13, di23);
+    }
+
+    for (int i = y1; i < y3; i++)
     {
         z = wz1;
         iv = wi1;
@@ -498,11 +479,6 @@ void Renderer::triangle(const struct PolyVecs &p, struct PolyI i, double c_)
         {
             dz = (wz2 - wz1) / (double)(wx2 - wx1);
             di = (wi2 - wi1) / (double)(wx2 - wx1);
-        }
-        else
-        {
-            dz = 0;
-            di = 0;
         }
         for (int j = wx1; j < wx2; j++)
         {
@@ -519,62 +495,226 @@ void Renderer::triangle(const struct PolyVecs &p, struct PolyI i, double c_)
             z += dz;
             iv += di;
         }
-        wx1 += dx13;
-        wx2 += dx12;
-        wz1 += dz13;
-        wz2 += dz12;
-        wi1 += di13;
-        wi2 += di12;
+        if (i < y2)
+        {
+            wx1 += dx13;
+            wx2 += dx12;
+            wz1 += dz13;
+            wz2 += dz12;
+            wi1 += di13;
+            wi2 += di12;
+        }
+        else
+        {
+            wx1 += _dx13;
+            wx2 += dx23;
+            wz1 += _dz13;
+            wz2 += dz23;
+            wi1 += _di13;
+            wi2 += di23;
+        }
+    }
+}
+
+
+void Renderer::triangle(const struct PolyVecs &p, struct PolyI i, TrPolygon uv, ImageItem *tex, double c_)
+{
+    double u[] = {uv.u[0], uv.u[1], uv.u[2]};
+    double v[] = {uv.v[0], uv.v[1], uv.v[2]};
+    const Vector *a = &(p.a);
+    const Vector *b = &(p.b);
+    const Vector *c = &(p.c);
+    const Vector *t;
+/*
+    i.ia /= 255;
+    i.ib /= 255;
+    i.ic /= 255;
+*/
+
+    if ((*b)[1] < (*a)[1])
+        { std::swap(a, b); std::swap(u[0], u[1]); std::swap(v[0], v[1]); std::swap(i.ia, i.ib); }
+    if ((*c)[1] < (*a)[1])
+        { std::swap(a, c); std::swap(u[0], u[2]); std::swap(v[0], v[2]); std::swap(i.ia, i.ic); }
+    if ((*b)[1] > (*c)[1])
+        { std::swap(b, c); std::swap(u[1], u[2]); std::swap(v[1], v[2]); std::swap(i.ic, i.ib); }
+    if (int((*a)[1]+.5) == int((*b)[1]+.5) && (*b)[0] < (*a)[0])
+        { std::swap(a, b); std::swap(u[0], u[1]); std::swap(v[0], v[1]); std::swap(i.ia, i.ib); }
+
+    int x1 = int((*a)[0] + .5);
+    int x2 = int((*b)[0] + .5);
+    int x3 = int((*c)[0] + .5);
+    int y1 = int((*a)[1] + .5);
+    int y2 = int((*b)[1] + .5);
+    int y3 = int((*c)[1] + .5);
+    int z1 = int((*a)[2] + .5);
+    int z2 = int((*b)[2] + .5);
+    int z3 = int((*c)[2] + .5);
+
+    double dx13 = 0, dx12 = 0, dx23 = 0;
+    double dz13 = 0, dz12 = 0, dz23 = 0;
+    Vector di13(3);
+    Vector di12(3);
+    Vector di23(3);
+    double du13 = 0, du12 = 0, du23 = 0;
+    double dv13 = 0, dv12 = 0, dv23 = 0;
+
+    if (y3 != y1)
+    {
+        dz13 = (z3 - z1) / (double)(y3 - y1);
+        dx13 = (x3 - x1) / (double)(y3 - y1);
+        di13 = (i.ic - i.ia) / (double)(y3 - y1);
+        du13 = (u[2] - u[0]) / (double)(y3 - y1);
+        dv13 = (v[2] - v[0]) / (double)(y3 - y1);
+    }
+    else
+    {
+        dx13 = 0;
+        dz13 = 0;
+        di13 = 0;
+        du13 = 0;
+        dv13 = 0;
+    }
+    if (y2 != y1)
+    {
+        dz12 = (z2 - z1) / (double)(y2 - y1);
+        dx12 = (x2 - x1) / (double)(y2 - y1);
+        di12 = (i.ib - i.ia) / (double)(y2 - y1);
+        du13 = (u[1] - u[0]) / (double)(y2 - y1);
+        dv13 = (v[1] - v[0]) / (double)(y2 - y1);
+    }
+    else
+    {
+        dz12 = 0;
+        dx12 = 0;
+        di12 = 0;
+        du13 = 0;
+        dv13 = 0;
+    }
+    if (y3 != y2)
+    {
+        dz23 = (z3 - z2) / (double)(y3 - y2);
+        dx23 = (x3 - x2) / (double)(y3 - y2);
+        di23 = (i.ic - i.ib) / (double)(y3 - y2);
+        du13 = (u[2] - u[1]) / (double)(y3 - y2);
+        dv13 = (v[2] - v[1]) / (double)(y3 - y2);
+    }
+    else
+    {
+        dz23 = 0;
+        dx23 = 0;
+        di23 = 0;
+        du13 = 0;
+        dv13 = 0;
+    }
+    double z;
+    double dz;
+
+    double u_, v_, du, dv;
+
+    Vector iv(3);
+    Vector di(3);
+
+    double wx1 = x1;
+    double wx2 = wx1;
+    double wz1 = z1;
+    double wz2 = z1;
+    Vector wi1(i.ia);
+    Vector wi2(i.ia);
+    double wu1 = u[0];
+    double wu2 = u[0];
+    double wv1 = v[0];
+    double wv2 = v[0];
+
+    Vector _di13(di13);
+    double _dx13 = dx13;
+    double _dz13 = dz13;
+    double _du13 = du13;
+    double _dv13 = dv13;
+
+    if (dx13 > dx12)
+    {
+        std::swap(dz13, dz12);
+        std::swap(dx13, dx12);
+        std::swap(di13, di12);
+        std::swap(du13, du12);
+        std::swap(dv13, dv12);
     }
 
     if (y1 == y2){
-        wx1 = x1;
         wx2 = x2;
-        wz1 = z1;
         wz2 = z2;
-        wi1 = i.ia;
         wi2 = i.ib;
+        wu2 = u[1];
+        wv2 = v[1];
     }
     if (_dx13 < dx23)
     {
-        swap_(&_dx13, &dx23);
-        swap_(&_dz13, &dz23);
-        _di13.swap(di23);
+        std::swap(_dz13, dz23);
+        std::swap(_dx13, dx23);
+        std::swap(_di13, di23);
+        std::swap(_du13, du23);
+        std::swap(_dv13, dv23);
     }
-    for (int i = y2; i < y3; i++){
+
+    for (int i = y1; i < y3; i++)
+    {
         z = wz1;
         iv = wi1;
+        u_ = wu1;
+        v_ = wv1;
 
         if (wx1 != wx2)
         {
             dz = (wz2 - wz1) / (double)(wx2 - wx1);
             di = (wi2 - wi1) / (double)(wx2 - wx1);
+            du = (wu2 - wu1) / (double)(wx2 - wx1);
+            dv = (wv2 - wv1) / (double)(wx2 - wx1);
         }
-        else
-        {
-            dz = 0;
-            di = 0;
-        }
-
         for (int j = wx1; j < wx2; j++)
         {
             int idx = i * h + j;
-           if (zbuf[idx] < z)
+
+            if (zbuf[idx] < z)
             {
-               if (iv[2] > ibuf_transparent[idx][2])
-               {
-                   c_tr[idx] = c_;
-                   ibuf_transparent[idx] = c_ * iv;
-               }
+                if (iv[2] > ibuf_transparent[idx][2])
+                {
+                    c_tr[idx] = c_;
+                    QRgb itex = tex->texel(u_, v_);
+                    ibuf_transparent[idx][0] = c_ * (qRed(itex) * 0.5 + iv[0] * 0.5);
+                    ibuf_transparent[idx][1] = c_ * (qGreen(itex) * 0.5 + iv[1] * 0.5);
+                    ibuf_transparent[idx][2] = c_ * (qBlue(itex) * 0.5 + iv[2] * 0.5);
+                }
             }
             z += dz;
             iv += di;
+            u_ += du;
+            v_ += dv;
         }
-        wx1 += _dx13;
-        wx2 += dx23;
-        wz1 += _dz13;
-        wz2 += dz23;
-        wi1 += _di13;
-        wi2 += di23;
+        if (i < y2)
+        {
+            wx1 += dx13;
+            wx2 += dx12;
+            wz1 += dz13;
+            wz2 += dz12;
+            wi1 += di13;
+            wi2 += di12;
+            wu1 += du13;
+            wu2 += du12;
+            wv1 += dv13;
+            wv2 += dv12;
+        }
+        else
+        {
+            wx1 += _dx13;
+            wx2 += dx23;
+            wz1 += _dz13;
+            wz2 += dz23;
+            wi1 += _di13;
+            wi2 += di23;
+            wu1 += _du13;
+            wu2 += du23;
+            wv1 += _dv13;
+            wv2 += dv23;
+        }
     }
 }
