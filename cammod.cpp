@@ -8,6 +8,8 @@ CamMod::CamMod(QObject *parent) : QObject(parent)
 
 void CamMod::mouse_move(QMouseEvent *pe)
 {
+    if (!moving)
+        return;
     if (xpos == -1)
     {
         xpos = pe->x();
@@ -29,10 +31,24 @@ void CamMod::mouse_move(QMouseEvent *pe)
 void CamMod::mouse_release(QMouseEvent *pe)
 {
     xpos = -1;
+    moving = false;
+}
+
+void CamMod::mouse_wheel(QWheelEvent *pe)
+{
+    float scale = pe->delta() / 1200.0;
+
+    if (pe->orientation() == Qt::Vertical)
+    {
+        scene->scale(scale);
+    }
+    pe->accept();
 }
 
 void CamMod::mouse_press(QMouseEvent *pe)
 {
+    if (pe->button() == Qt::LeftButton)
+        moving = true;
     if (pe->button() == Qt::RightButton)
         this->rightclick(pe);
 
@@ -53,12 +69,6 @@ void CamMod::rotatey(double angle)
 void CamMod::rotatex(double angle)
 {
     scene->cam->anglex += angle;
-/*
-    if (scene->cam->anglex < 0)
-        scene->cam->anglex = 0;
-    if (scene->cam->anglex > 2 * M_PI)
-        scene->cam->anglex = 2 * M_PI;
-*/
     scene->set_changed();
 }
 

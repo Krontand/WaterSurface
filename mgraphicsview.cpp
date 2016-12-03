@@ -14,11 +14,15 @@ void MGraphicsView::mouseMoveEvent(QMouseEvent *pe)
 void MGraphicsView::mousePressEvent(QMouseEvent *pe)
 {
     cmod->mouse_press(pe);
-  //  pe->ignore();
 }
 
 void MGraphicsView::mouseReleaseEvent(QMouseEvent *pe)
 {
     cmod->mouse_release(pe);
     pe->ignore();
+}
+
+void MGraphicsView::wheelEvent(QWheelEvent *pe)
+{
+    cmod->mouse_wheel(pe);
 }

@@ -242,7 +242,7 @@ void Renderer::triangle(const struct PolyVecs &p, Vector i_, TrPolygon uv, Image
 
     for (y = (int)(*a)[1]+1; y <= (int)(*c)[1]; y++)                          // цикл отрисовки грани
     {
-        if (y < 0 || y >= this->h)
+        if (y <= 0 || y >= this->h)
             continue;
 
 
@@ -307,7 +307,7 @@ void Renderer::triangle(const struct PolyVecs &p, Vector i_, TrPolygon uv, Image
             while (len--)
             {
                 int idx = y * w + x;
-                if ((x > 0) && (x < this->w))
+                if ((x >= 0) && (x <= this->w))
                     if ((!usez) || (zbuf[idx] < z))
                     {
                         QRgb i = tex->texel(u, v);
@@ -346,7 +346,7 @@ void Renderer::triangle(const struct PolyVecs &p, Vector i_, TrPolygon uv, Image
               while (length--)
               {
                   int idx = y * w + x;
-                  if (x > 0 && x < this->w)
+                  if (x >= 0 && x <= this->w)
                       if ((!usez) || (zbuf[idx] < z))
                       {
                           QRgb i = tex->texel(u, v);
@@ -472,6 +472,9 @@ void Renderer::triangle(const struct PolyVecs &p, struct PolyI i, double c_)
 
     for (int i = y1; i < y3; i++)
     {
+        if (i <= 0 || i >= this->h)
+            continue;
+
         z = wz1;
         iv = wi1;
 
@@ -482,6 +485,9 @@ void Renderer::triangle(const struct PolyVecs &p, struct PolyI i, double c_)
         }
         for (int j = wx1; j < wx2; j++)
         {
+            if (j <= 0 || j >= this->w)
+                continue;
+
             int idx = i * h + j;
 
             if (zbuf[idx] < z)
@@ -524,12 +530,6 @@ void Renderer::triangle(const struct PolyVecs &p, struct PolyI i, TrPolygon uv, 
     const Vector *a = &(p.a);
     const Vector *b = &(p.b);
     const Vector *c = &(p.c);
-    const Vector *t;
-/*
-    i.ia /= 255;
-    i.ib /= 255;
-    i.ic /= 255;
-*/
 
     if ((*b)[1] < (*a)[1])
         { std::swap(a, b); std::swap(u[0], u[1]); std::swap(v[0], v[1]); std::swap(i.ia, i.ib); }
@@ -579,32 +579,32 @@ void Renderer::triangle(const struct PolyVecs &p, struct PolyI i, TrPolygon uv, 
         dz12 = (z2 - z1) / (double)(y2 - y1);
         dx12 = (x2 - x1) / (double)(y2 - y1);
         di12 = (i.ib - i.ia) / (double)(y2 - y1);
-        du13 = (u[1] - u[0]) / (double)(y2 - y1);
-        dv13 = (v[1] - v[0]) / (double)(y2 - y1);
+        du12 = (u[1] - u[0]) / (double)(y2 - y1);
+        dv12 = (v[1] - v[0]) / (double)(y2 - y1);
     }
     else
     {
         dz12 = 0;
         dx12 = 0;
         di12 = 0;
-        du13 = 0;
-        dv13 = 0;
+        du12 = 0;
+        dv12 = 0;
     }
     if (y3 != y2)
     {
         dz23 = (z3 - z2) / (double)(y3 - y2);
         dx23 = (x3 - x2) / (double)(y3 - y2);
         di23 = (i.ic - i.ib) / (double)(y3 - y2);
-        du13 = (u[2] - u[1]) / (double)(y3 - y2);
-        dv13 = (v[2] - v[1]) / (double)(y3 - y2);
+        du23 = (u[2] - u[1]) / (double)(y3 - y2);
+        dv23 = (v[2] - v[1]) / (double)(y3 - y2);
     }
     else
     {
         dz23 = 0;
         dx23 = 0;
         di23 = 0;
-        du13 = 0;
-        dv13 = 0;
+        du23 = 0;
+        dv23 = 0;
     }
     double z;
     double dz;
@@ -658,6 +658,9 @@ void Renderer::triangle(const struct PolyVecs &p, struct PolyI i, TrPolygon uv, 
 
     for (int i = y1; i < y3; i++)
     {
+        if (i <= 0 || i >= this->h)
+            continue;
+
         z = wz1;
         iv = wi1;
         u_ = wu1;
@@ -672,6 +675,9 @@ void Renderer::triangle(const struct PolyVecs &p, struct PolyI i, TrPolygon uv, 
         }
         for (int j = wx1; j < wx2; j++)
         {
+            if (j <= 0 || j >= this->w)
+                continue;
+
             int idx = i * h + j;
 
             if (zbuf[idx] < z)

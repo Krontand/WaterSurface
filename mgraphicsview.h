@@ -18,6 +18,7 @@ private:
     virtual void mouseMoveEvent(QMouseEvent *pe);
     virtual void mousePressEvent(QMouseEvent *pe);
     virtual void mouseReleaseEvent(QMouseEvent *pe);
+    virtual void wheelEvent(QWheelEvent *pe);
 
 };
 

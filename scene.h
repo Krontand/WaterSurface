@@ -57,6 +57,8 @@ public:
 
     void disturb(int x, int y);
 
+    void scale(float k);
+
 
     Vector light_dir;           // Направление света (источник в бесконечности)
     Camera *cam;                // Камера (основная)
@@ -71,13 +73,14 @@ private:
     int wrefl;                  // Ширина изображения отражения
     int hrefl;                  // Высота изображения отражения
 
+    float k;
+
     ImageItem *img;
 
     Skybox *skybox;             // Модель скайбокса
     WaterModel *model;           // Модель воды
     PoolModel *pool_model;       // Модель стенок бассейна
 
-    ImageItem *pool_tex;          // Текстура бассейна (временно)
     bool changed;               // Если true, то изменилось положение камеры, сцена отрисуется полностью заново
     Vector light_color;         // Цвет освещения
 

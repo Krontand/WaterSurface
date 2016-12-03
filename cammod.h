@@ -17,6 +17,7 @@ public:
     void mouse_move(QMouseEvent *pe);
     void mouse_press(QMouseEvent *pe);
     void mouse_release(QMouseEvent *pe);
+    void mouse_wheel(QWheelEvent *pe);
 
 public slots:
     void updatescene();
@@ -31,6 +32,7 @@ private:
     int xpos;
     int ypos;
     void drawimage();
+    bool moving;
 };
 
 #endif // CAMMOD_H

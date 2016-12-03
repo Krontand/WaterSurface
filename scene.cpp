@@ -14,7 +14,7 @@ Scene::Scene(int x, int y, int w, int h)
 
     skybox = new Skybox();
 
-    model = new WaterModel(70);
+    model = new WaterModel(40);
     model->tex = new ImageItem(w/3, h/3);
 
     pool_model = new PoolModel(model->surf[model->xvert+1][0],
@@ -46,6 +46,8 @@ Scene::Scene(int x, int y, int w, int h)
     model->apply_matrix(scale);
     pool_model->apply_matrix(scale);
 
+    k = 1;
+
 }
 
 Scene::~Scene()
@@ -73,11 +75,11 @@ void Scene::render()
 
         this->model->rotateuv(-this->cam->anglex);
 
-        renderer->render(this->img, this->model, this->pool_model, this->skybox, this->cam, 1, 7);
+        renderer->render(this->img, this->model, this->pool_model, this->skybox, this->cam, k, 7);
     }
     else
     {
-        renderer->render(this->img, this->model, this->pool_model, this->skybox, this->cam, 1, 4);
+        renderer->render(this->img, this->model, this->pool_model, this->skybox, this->cam, k, 4);
     }
 }
 
@@ -177,6 +179,16 @@ void Scene::disturb(int x, int y)
             b = false;
         }
     }
+}
+
+void Scene::scale(float k)
+{
+    this->k += k;
+    if (this->k > 1.8)
+        this->k = 1.8;
+    if (this->k < 0.4)
+        this->k = 0.4;
+    this->set_changed();
 }
 
 
