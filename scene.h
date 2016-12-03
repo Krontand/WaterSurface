@@ -59,6 +59,10 @@ public:
 
     void scale(float k);
 
+    void set_disturb_power(float p);
+
+    void reset_water();
+
 
     Vector light_dir;           // Направление света (источник в бесконечности)
     Camera *cam;                // Камера (основная)
@@ -74,6 +78,8 @@ private:
     int hrefl;                  // Высота изображения отражения
 
     float k;
+
+    float dpower;
 
     ImageItem *img;
 

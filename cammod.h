@@ -19,6 +19,9 @@ public:
     void mouse_release(QMouseEvent *pe);
     void mouse_wheel(QWheelEvent *pe);
 
+    void setpower(int p);
+    void reset_water();
+
 public slots:
     void updatescene();
     void rand_disturb();

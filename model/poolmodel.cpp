@@ -4,7 +4,7 @@ PoolModel::PoolModel()
 {
 }
 
-PoolModel::PoolModel(double x1, double x2, double z1, double z2)
+PoolModel::PoolModel(double x1, double x2, double z1, double z2, double scale)
 {
     this->tex = new ImageItem(":/pool/pool.bmp");
 
@@ -15,11 +15,11 @@ PoolModel::PoolModel(double x1, double x2, double z1, double z2)
     surf = Matrix(xv*zv, 4);
     surf_screen = Matrix(xv*zv, 4);
 
-    for(int j = 0; j < xv; ++j)
+    for(int j = 0; j < xv; j++)
     {
-        surf[j][1] = 1.2 * -0.1;
+        surf[j][1] = 1.2 * -0.1 * scale;
         surf[j][3] = 1;
-        surf[j+xv][1] = 1.2 * -0.1 + .3;
+        surf[j+xv][1] = (1.2 * -0.1 + .3) * scale;
         surf[j+xv][3] = 1;
     }
 
@@ -73,6 +73,8 @@ PoolModel::PoolModel(double x1, double x2, double z1, double z2)
     surf_norms[6] = std::valarray<double>({-1., 0., 0.});
     surf_norms[8] = std::valarray<double>({0., -1., 0.});
     this->init_polygons();
+
+
 }
 
 PoolModel::~PoolModel()

@@ -14,13 +14,15 @@ Scene::Scene(int x, int y, int w, int h)
 
     skybox = new Skybox();
 
-    model = new WaterModel(40);
+    double scale = 0.625;
+
+    model = new WaterModel(50, scale);
     model->tex = new ImageItem(w/3, h/3);
 
     pool_model = new PoolModel(model->surf[model->xvert+1][0],
             model->surf[model->xvert*(model->xvert-1)-1][0],
             model->surf[1][2],
-            model->surf[model->xvert-2][2]);
+            model->surf[model->xvert-2][2], scale);
 
     cam = new Camera(-.4, -.4, -.4);
     reflcam = new Camera(0, 0, 0);
@@ -39,14 +41,8 @@ Scene::Scene(int x, int y, int w, int h)
     renderer = new Renderer(w, h);
     refl_renderer = new Renderer(w/3, h/3);
 
-    Matrix scale = Matrix(4, 4);
-    identity4(scale);
-    scale = scale / 1.6;
-    scale[3][3] = 1;
-    model->apply_matrix(scale);
-    pool_model->apply_matrix(scale);
-
     k = 1;
+    dpower = 0.05;
 
 }
 
@@ -94,17 +90,17 @@ void Scene::rand_disturb()
     if ((k+1) % model->xvert == 0)
         k--;
 
-    model->H1[k] += .05;
-    model->H2[k] += .05;
+    model->H1[k] += this->dpower;
+    model->H2[k] += this->dpower;
 
-    model->H1[k + 1] += .05;
-    model->H2[k + 1] += .05;
+    model->H1[k + 1] += this->dpower;
+    model->H2[k + 1] += this->dpower;
 
-    model->H1[k + model->xvert] += .05;
-    model->H2[k + model->xvert] += .05;
+    model->H1[k + model->xvert] += this->dpower;
+    model->H2[k + model->xvert] += this->dpower;
 
-    model->H1[k + model->xvert + 1] += .05;
-    model->H2[k + model->xvert + 1] += .05;
+    model->H1[k + model->xvert + 1] += this->dpower;
+    model->H2[k + model->xvert + 1] += this->dpower;
 }
 
 void Scene::calc_normals()
@@ -165,17 +161,17 @@ void Scene::disturb(int x, int y)
         if ((a >= 0 && b >= 0 && c >= 0) || (a <= 0 && b <= 0 && c <= 0))
         {
             int k = model->polygons[i].vert[0];
-            model->H1[k] += .05;
-            model->H2[k] += .05;
+            model->H1[k] += this->dpower;
+            model->H2[k] += this->dpower;
 
-            model->H1[k + 1] += .05;
-            model->H2[k + 1] += .05;
+            model->H1[k + 1] += this->dpower;
+            model->H2[k + 1] += this->dpower;
 
-            model->H1[k + model->xvert] += .05;
-            model->H2[k + model->xvert] += .05;
+            model->H1[k + model->xvert] += this->dpower;
+            model->H2[k + model->xvert] += this->dpower;
 
-            model->H1[k + model->xvert + 1] += .05;
-            model->H2[k + model->xvert + 1] += .05;
+            model->H1[k + model->xvert + 1] += this->dpower;
+            model->H2[k + model->xvert + 1] += this->dpower;
             b = false;
         }
     }
@@ -189,6 +185,16 @@ void Scene::scale(float k)
     if (this->k < 0.4)
         this->k = 0.4;
     this->set_changed();
+}
+
+void Scene::set_disturb_power(float p)
+{
+    this->dpower = p;
+}
+
+void Scene::reset_water()
+{
+    this->model->reset();
 }
 
 

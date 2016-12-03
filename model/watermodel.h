@@ -7,7 +7,7 @@ class WaterModel : public Model
 {
 public:
     WaterModel();
-    WaterModel(double x);
+    WaterModel(double x, double scale);
     ~WaterModel();
 
     /*
@@ -26,6 +26,8 @@ public:
     struct PolyVecs wallvert(int num);
 
     void rotateuv(double angle);
+
+    void reset(void);
 
     Vector i_wall;                        // Интенсивность света стенок воды
 
@@ -50,7 +52,7 @@ private:
     const int gcolor = 149;
     const int bcolor = 182;
 
-    const double ybase = -0.1;      // Базовая высота поверхности воды
+    double ybase;      // Базовая высота поверхности воды
     const double w = 1.985;         // Коэффициент вязкости
 
     double angle;

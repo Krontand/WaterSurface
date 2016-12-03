@@ -18,7 +18,7 @@ class Skybox : public Model
 public:
     Skybox();
 
-    void calc_normals() {};
+    void calc_normals() {}
 
     /*
      * Перемещение скайбокса в заданную точку

@@ -22,6 +22,9 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+private slots:
+    void on_powerSlider_sliderReleased();
+
 private:
     Ui::MainWindow *ui;
     QTimer *timer;

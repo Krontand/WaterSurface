@@ -26,3 +26,9 @@ void MGraphicsView::wheelEvent(QWheelEvent *pe)
 {
     cmod->mouse_wheel(pe);
 }
+
+void MGraphicsView::keyPressEvent(QKeyEvent *ke)
+{
+    if (ke->key() == 32)
+        cmod->reset_water();
+}

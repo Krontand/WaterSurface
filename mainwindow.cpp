@@ -29,3 +29,8 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+
+void MainWindow::on_powerSlider_sliderReleased()
+{
+    cmod->setpower(ui->powerSlider->value());
+}

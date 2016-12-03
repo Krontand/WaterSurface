@@ -4,6 +4,7 @@
 #include <QtGui>
 #include <QMainWindow>
 #include <QGraphicsView>
+#include <QKeyEvent>
 #include "cammod.h"
 
 class MGraphicsView : public QGraphicsView
@@ -19,6 +20,7 @@ private:
     virtual void mousePressEvent(QMouseEvent *pe);
     virtual void mouseReleaseEvent(QMouseEvent *pe);
     virtual void wheelEvent(QWheelEvent *pe);
+    virtual void keyPressEvent(QKeyEvent *ke);
 
 };
 

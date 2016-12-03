@@ -45,6 +45,16 @@ void CamMod::mouse_wheel(QWheelEvent *pe)
     pe->accept();
 }
 
+void CamMod::setpower(int p)
+{
+    scene->set_disturb_power(p/1000.0);
+}
+
+void CamMod::reset_water()
+{
+    scene->reset_water();
+}
+
 void CamMod::mouse_press(QMouseEvent *pe)
 {
     if (pe->button() == Qt::LeftButton)

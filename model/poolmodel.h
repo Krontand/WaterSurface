@@ -7,7 +7,7 @@ class PoolModel : public Model
 {
 public:
     PoolModel();
-    PoolModel(double x1, double x2, double z1, double z2);
+    PoolModel(double x1, double x2, double z1, double z2, double scale);
     ~PoolModel();
 
     /*

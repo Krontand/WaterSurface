@@ -12,10 +12,10 @@ WaterModel::WaterModel()
 
 }
 
-WaterModel::WaterModel(double x)
+WaterModel::WaterModel(double x, double scale)
 {
     xvert = (int)(x);
-
+    this->ybase = -0.1;
     int x2 = x / 2;
 
     surf = Matrix(xvert*xvert + (xvert - 2) * 4, 4);
@@ -76,8 +76,8 @@ WaterModel::WaterModel(double x)
     i_wall[2] = bcolor*.3;
 
 
-    H1 = Vector(ybase/1.6, x*x);
-    H2 = Vector(ybase/1.6, x*x);
+    H1 = Vector(ybase*scale, x*x);
+    H2 = Vector(ybase*scale, x*x);
 
     surf_norms = Matrix(2 * xvert * xvert, 3);
     vert_norms = Matrix(xvert * xvert, 3);
@@ -90,6 +90,14 @@ WaterModel::WaterModel(double x)
 
     angle = 0;
     init_polygons();
+
+    Matrix smatr = Matrix(4, 4);
+    identity4(smatr);
+    smatr = smatr * scale;
+    smatr[3][3] = 1;
+    this->apply_matrix(smatr);
+
+    this->ybase *= scale;
 }
 
 void WaterModel::init_polygons()
@@ -207,6 +215,16 @@ void WaterModel::rotateuv(double angle)
         buf.v[2] = 0.5 + (polygons[i].v[2] - 0.5) * cosa + (polygons[i].u[2] - 0.5) * sina;
 
         polygons[i] = buf;
+    }
+}
+
+void WaterModel::reset()
+{
+    for (int i = 0; i < xvert*xvert; i++)
+    {
+        this->surf[i][1] = ybase;
+        H1[i] = ybase;
+        H2[i] = ybase;
     }
 }
 
