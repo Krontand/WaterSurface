@@ -90,17 +90,17 @@ void Scene::rand_disturb()
     if ((k+1) % model->xvert == 0)
         k--;
 
-    model->H1[k] += this->dpower;
-    model->H2[k] += this->dpower;
+    model->H1[k] -= this->dpower;
+    model->H2[k] -= this->dpower;
 
-    model->H1[k + 1] += this->dpower;
-    model->H2[k + 1] += this->dpower;
+    model->H1[k + 1] -= this->dpower;
+    model->H2[k + 1] -= this->dpower;
 
-    model->H1[k + model->xvert] += this->dpower;
-    model->H2[k + model->xvert] += this->dpower;
+    model->H1[k + model->xvert] -= this->dpower;
+    model->H2[k + model->xvert] -= this->dpower;
 
-    model->H1[k + model->xvert + 1] += this->dpower;
-    model->H2[k + model->xvert + 1] += this->dpower;
+    model->H1[k + model->xvert + 1] -= this->dpower;
+    model->H2[k + model->xvert + 1] -= this->dpower;
 }
 
 void Scene::calc_normals()
@@ -161,17 +161,34 @@ void Scene::disturb(int x, int y)
         if ((a >= 0 && b >= 0 && c >= 0) || (a <= 0 && b <= 0 && c <= 0))
         {
             int k = model->polygons[i].vert[0];
-            model->H1[k] += this->dpower;
-            model->H2[k] += this->dpower;
 
-            model->H1[k + 1] += this->dpower;
-            model->H2[k + 1] += this->dpower;
+            model->H1[k] -= this->dpower;
+            model->H2[k] -= this->dpower;
 
-            model->H1[k + model->xvert] += this->dpower;
-            model->H2[k + model->xvert] += this->dpower;
+            model->H1[k + 1] -= this->dpower * exp(-0.8);
+            model->H2[k + 1] -= this->dpower * exp(-0.8);
 
-            model->H1[k + model->xvert + 1] += this->dpower;
-            model->H2[k + model->xvert + 1] += this->dpower;
+            model->H1[k - 1] -= this->dpower * exp(-0.8);
+            model->H2[k - 1] -= this->dpower * exp(-0.8);
+
+            model->H1[k + model->xvert] -= this->dpower * exp(-0.8);
+            model->H2[k + model->xvert] -= this->dpower * exp(-0.8);
+
+            model->H1[k - model->xvert] -= this->dpower * exp(-0.8);
+            model->H2[k - model->xvert] -= this->dpower * exp(-0.8);
+
+            model->H1[k + model->xvert + 1] -= this->dpower * exp(-1.6);
+            model->H2[k + model->xvert + 1] -= this->dpower * exp(-1.6);
+
+            model->H1[k - model->xvert + 1] -= this->dpower * exp(-1.6);
+            model->H2[k - model->xvert + 1] -= this->dpower * exp(-1.6);
+
+            model->H1[k + model->xvert - 1] -= this->dpower * exp(-1.6);
+            model->H2[k + model->xvert - 1] -= this->dpower * exp(-1.6);
+
+            model->H1[k - model->xvert - 1] -= this->dpower * exp(-1.6);
+            model->H2[k - model->xvert - 1] -= this->dpower * exp(-1.6);
+
             b = false;
         }
     }
@@ -189,7 +206,7 @@ void Scene::scale(float k)
 
 void Scene::set_disturb_power(float p)
 {
-    this->dpower = p;
+    this->dpower = 1.5*p;
 }
 
 void Scene::reset_water()
