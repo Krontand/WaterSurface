@@ -36,6 +36,11 @@ private:
     int ypos;
     void drawimage();
     bool moving;
+
+
+    double time;
+    int n;
+
 };
 
 #endif // CAMMOD_H

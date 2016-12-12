@@ -23,7 +23,7 @@ struct PolyVecs
     Vector a;
     Vector b;
     Vector c;
-} ;
+};
 
 struct PolyI
 {

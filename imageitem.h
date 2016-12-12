@@ -47,6 +47,11 @@ public:
 
     QImage image;
     QImage buf;
+
+private:
+    uchar *pixels;
+    int w;
+    int h;
 };
 
 #endif // IMAGEITEM_H

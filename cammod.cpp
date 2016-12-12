@@ -4,6 +4,10 @@ CamMod::CamMod(QObject *parent) : QObject(parent)
 {
     xpos = -1;
     ypos = -1;
+
+
+    time = 0;
+    n = 0;
 }
 
 void CamMod::mouse_move(QMouseEvent *pe)
@@ -89,10 +93,21 @@ void CamMod::drawimage()
 
 void CamMod::updatescene()
 {
+ //   LARGE_INTEGER sta, fin, frq;
+ //   QueryPerformanceCounter(&sta);
+
     scene->updheights();
     scene->calc_normals();
     scene->calc_intencities();
     scene->render();
+
+ /*   QueryPerformanceCounter(&fin);
+    QueryPerformanceFrequency(&frq);
+
+    double dif = double(fin.QuadPart - sta.QuadPart) / frq.QuadPart;
+    time += dif;
+    n++;
+    std::cout << (time / n) << std::endl;*/
 }
 
 void CamMod::rand_disturb()

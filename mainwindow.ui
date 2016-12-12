@@ -84,7 +84,20 @@
      </rect>
     </property>
     <property name="text">
-     <string>1                                         10</string>
+     <string>0                                         10</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>760</x>
+      <y>520</y>
+      <width>181</width>
+      <height>111</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Управление&lt;/span&gt;&lt;/p&gt;&lt;p&gt;ЛКМ - вращение камеры&lt;/p&gt;&lt;p&gt;ПКМ - создание всплеска&lt;/p&gt;&lt;p&gt;Пробел - сброс поверхности воды&lt;/p&gt;&lt;p&gt;Колесико - масштабирование&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
   </widget>
